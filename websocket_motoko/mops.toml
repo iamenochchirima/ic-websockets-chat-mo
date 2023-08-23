@@ -1,0 +1,11 @@
+[package]
+name = "websocket-motoko"
+version = "0.0.1"
+description = "IC WebSocket Motoko Impimentetion"
+repository = ""
+keywords = [ ]
+license = "MIT"
+
+[dependencies]
+base = "0.9.3"
+ic-websocket-cdk-mo = "https://github.com/omnia-network/ic-websocket-cdk-mo#c9970f76e74a9019f2a5c97b317b84b9cc13d808"
