@@ -53,7 +53,7 @@ actor {
   );
 
   // Paste here the principal of the gateway obtained when running the gateway
-  let GATEWAY_PRINCIPAL : Text = "iooeh-5tqqn-c3ego-oav3s-lvcwe-xuybn-e26kv-cblbg-a2axl-lor3f-fae";
+  let gateway_principal : Text = "iooeh-5tqqn-c3ego-oav3s-lvcwe-xuybn-e26kv-cblbg-a2axl-lor3f-fae";
 
   var ws = IcWebSocketCdk.IcWebSocket(handlers, gateway_principal);
 
