@@ -4,6 +4,7 @@ import React from "react";
 //   websocket_motoko_backend,
 // } from "../../declarations/websocket_motoko_backend";
 import IcWebSocket from "ic-websocket-js";
+import { BsArrowDown, BsArrowUp } from "react-icons/bs";
 
 const PingPong = () => {
   const gatewayUrl = "ws://127.0.0.1:8080";
@@ -16,6 +17,26 @@ const PingPong = () => {
   //   localTest: true,
   //   persistKey: false,
   // });
+
+  // ws.onopen = () => {
+  //   console.log("Connected to the canister");
+  // };
+  
+  // ws.onmessage = async (event) => {
+  //   console.log("Received message:", event.data);
+  
+  //   await ws.send({
+  //     text: event.data.text + "-pong",
+  //   });
+  // };
+  
+  // ws.onclose = () => {
+  //   console.log("Disconnected from the canister");
+  // };
+  
+  // ws.onerror = (error) => {
+  //   console.log("Error:", error);
+  // };
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <div className="min-h-screen min-w-[800px] mt-5 rounded bg-gray-700">
@@ -24,10 +45,14 @@ const PingPong = () => {
             Send Ping
           </button>
         </div>
-        <div className="">
-          <div className="bg-gray-300 mx-5 mt-4 p-2 rounded flex gap-5 text-gray-950">
+        <div className="mt-5">
+          <div className="bg-gray-200 mx-5 p-2 flex gap-10 text-gray-950">
+            <span className="flex gap-3 items-center"><BsArrowUp/>  <h1>Frontend</h1></span>
             <h1>Ping</h1>
-            <h1>Outgoing</h1>
+          </div>
+          <div className="bg-gray-900 mx-5  p-2 flex gap-10 text-gray-200">
+            <span className="flex gap-3 items-center"><BsArrowDown/>  <h1>Backend</h1></span>
+            <h1>Pong</h1>
           </div>
         </div>
       </div>
