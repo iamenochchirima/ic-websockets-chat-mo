@@ -4,7 +4,7 @@ import Debug "mo:base/Debug";
 
 actor {
   // Paste here the principal of the gateway obtained when running the gateway
-  let gateway_principal : Text = "iooeh-5tqqn-c3ego-oav3s-lvcwe-xuybn-e26kv-cblbg-a2axl-lor3f-fae";
+  let gateway_principal : Text = "jkhgq-q7bza-ztzvn-swx6g-dgkdp-24g7z-54mt2-2edmj-7j4n7-x7qnj-oqe";
 
   type AppMessage = {
     message : Text;
@@ -52,7 +52,7 @@ actor {
     await send_app_message(args.client_key, new_msg);
   };
 
-  func on_close(args : IcWebSocket.OnCloseCallbackArgs) : async () {
+  func on_close(args : IcWebSocketCdk.OnCloseCallbackArgs) : async () {
     Debug.print("Client " # debug_show (args.client_key) # " disconnected");
   };
 
@@ -90,7 +90,7 @@ actor {
   };
 
   // method called by the WS Gateway to get messages for all the clients it serves
-  public shared query ({ caller }) func ws_get_messages(args : IcWebSocket.CanisterWsGetMessagesArguments) : async IcWebSocket.CanisterWsGetMessagesResult {
+  public shared query ({ caller }) func ws_get_messages(args : IcWebSocketCdk.CanisterWsGetMessagesArguments) : async IcWebSocketCdk.CanisterWsGetMessagesResult {
     ws.ws_get_messages(caller, args);
   };
 
