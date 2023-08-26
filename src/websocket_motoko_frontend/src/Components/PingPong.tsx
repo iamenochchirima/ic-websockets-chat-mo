@@ -1,32 +1,24 @@
 import React, { useEffect, useState } from "react";
-import IcWebSocket from "ic-websocket-js";
 import { BsArrowDown, BsArrowUp } from "react-icons/bs";
-import {
-  canisterId,
-  websocket_motoko_backend,
-} from "../../../declarations/websocket_motoko_backend";
 import { deserializeAppMessage, serializeAppMessage } from "../utils/idl";
+import { ws } from "../utils/ws";
+
+type uiMessage = {
+  from: string;
+  message: string;
+};
+
+type AppMessage = {
+  message: string;
+};
+
+let messages: uiMessage[] = [];
 
 const PingPong = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [messagesCount, setMessagesCount] = useState(0);
   const [connecting, setConnecting] = useState(true);
   const [isClosed, setIsClosed] = useState(false);
-
-  type AppMessage = {
-    message: string;
-  };
-
-  const gatewayUrl = "ws://127.0.0.1:8080";
-  const icUrl = "http://127.0.0.1:4943";
-
-  const ws = new IcWebSocket(gatewayUrl, undefined, {
-    canisterActor: websocket_motoko_backend,
-    canisterId: canisterId,
-    networkUrl: icUrl,
-    localTest: true,
-    persistKey: false,
-  });
 
   ws.onopen = () => {
     console.log("Connected to the canister");
@@ -37,13 +29,30 @@ const PingPong = () => {
 
   ws.onmessage = async (event) => {
     try {
-      console.log("Received message:", deserializeAppMessage(event.data));
+      const recievedMessage = deserializeAppMessage(event.data);
+      const fromBackendMessage: uiMessage = {
+        from: "backend",
+        message: recievedMessage.message,
+      };
+      messages.push(fromBackendMessage);
+
       setMessagesCount(messagesCount + 1);
 
-      const message: AppMessage = {
-        message: "pong",
-      };
-      await ws.send(serializeAppMessage(message));
+      try {
+        setTimeout(async () => {
+          const sentMessage: AppMessage = {
+            message: "pong",
+          };
+          await ws.send(serializeAppMessage(sentMessage));
+          const fromFrontendMessage: uiMessage = {
+            from: "frontend",
+            message: sentMessage.message,
+          };
+          messages.push(fromFrontendMessage);
+        }, 2000);
+      } catch (error) {
+        console.log("Error on sending message", error);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -70,7 +79,12 @@ const PingPong = () => {
 
   useEffect(() => {
     console.log(messagesCount);
+    if (messagesCount === 25) {
+      ws.close();
+    }
   }, [messagesCount]);
+
+  console.log(messages);
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <div className="min-h-screen min-w-[800px] mt-5 rounded bg-gray-700">
@@ -94,18 +108,27 @@ const PingPong = () => {
           </button>
         </div>
         <div className="mt-5">
-          <div className="bg-gray-200 mx-5 p-2 flex gap-10 text-gray-950">
-            <span className="flex gap-3 items-center">
-              <BsArrowUp /> <h1>Frontend</h1>
-            </span>
-            <h1>Ping</h1>
-          </div>
-          <div className="bg-gray-900 mx-5  p-2 flex gap-10 text-gray-200">
-            <span className="flex gap-3 items-center">
-              <BsArrowDown /> <h1>Backend</h1>
-            </span>
-            <h1>Pong</h1>
-          </div>
+          {messages.map((message, index) => (
+            <div
+              key={index}
+              className={` ${
+                message.from === "backend"
+                  ? `bg-gray-900  text-gray-200`
+                  : `bg-gray-200 text-gray-950`
+              }  mx-5  p-2 flex gap-10`}
+            >
+              {message.from === "backend" ? (
+                <span className="flex gap-3 items-center">
+                  <BsArrowDown /> <h1>Backend</h1>
+                </span>
+              ) : (
+                <span className="flex gap-3 items-center">
+                  <BsArrowUp /> <h1>Frontend</h1>
+                </span>
+              )}
+              {message.from === "backend" ? <h1>Pong</h1> : <h1>Ping</h1>}
+            </div>
+          ))}
         </div>
       </div>
     </div>
