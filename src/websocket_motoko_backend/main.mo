@@ -1,59 +1,131 @@
 import IcWebSocketCdk "mo:ic-websocket-cdk";
 import Text "mo:base/Text";
 import Debug "mo:base/Debug";
+import HashMap "mo:base/HashMap";
+import Buffer "mo:base/Buffer";
+import Blob "mo:base/Blob";
+import Bool "mo:base/Bool";
 
 actor {
   // Paste here the principal of the gateway obtained when running the gateway
   let gateway_principal : Text = "jkhgq-q7bza-ztzvn-swx6g-dgkdp-24g7z-54mt2-2edmj-7j4n7-x7qnj-oqe";
 
-  type AppMessage = {
+  let connected_clients = Buffer.Buffer<IcWebSocketCdk.ClientPublicKey>(0);
+
+  type PingPongMessage = {
     message : Text;
+  };
+
+  type Typing = {
+    name : Text;
+  };
+
+  type ChatMessage = {
+    name : Text;
+    message : Text;
+  };
+
+  type GroupChatMessage = {
+    #Message : ChatMessage;
+    #UserTyping : Typing;
+  };
+
+  type AppMessage = {
+    #PingPong : PingPongMessage;
+    #GroupMessage : GroupChatMessage;
   };
 
   var ws_state = IcWebSocketCdk.IcWebSocketState(gateway_principal);
 
   /// A custom function to send the message to the client
-  func send_app_message(client_key : IcWebSocketCdk.ClientPublicKey, msg : AppMessage): async () {
-    Debug.print("Sending message: " # debug_show (msg));
+  func send_app_message(client_key : IcWebSocketCdk.ClientPublicKey, msg : AppMessage) : async () {
+    switch (msg) {
+      case (#PingPong(message)) {
+        Debug.print("Sending message: " # debug_show (message));
 
-    // here we call the ws_send from the CDK!!
-    switch (await IcWebSocketCdk.ws_send(ws_state, client_key, to_candid(msg))) {
-      case (#Err(err)) {
-        Debug.print("Could not send message:" # debug_show (#Err(err)));
+        // here we call the ws_send from the CDK!!
+        switch (await IcWebSocketCdk.ws_send(ws_state, client_key, to_candid (message))) {
+          case (#Err(err)) {
+            Debug.print("Could not send message:" # debug_show (#Err(err)));
+          };
+          case (_) {};
+        };
       };
-      case (_) {};
+      case (#GroupMessage(message)) {
+
+      };
     };
   };
 
   func on_open(args : IcWebSocketCdk.OnOpenCallbackArgs) : async () {
-    let message : AppMessage = {
+    let message : PingPongMessage = {
       message = "Ping";
     };
-    await send_app_message(args.client_key, message);
+    await send_app_message(args.client_key, #PingPong(message));
+    connected_clients.add(args.client_key);
   };
 
   /// The custom logic is just a ping-pong message exchange between frontend and canister.
   /// Note that the message from the WebSocket is serialized in CBOR, so we have to deserialize it first
 
   func on_message(args : IcWebSocketCdk.OnMessageCallbackArgs) : async () {
-    let app_msg : ?AppMessage = from_candid(args.message);
-    let new_msg: AppMessage = switch (app_msg) {
-      case (?msg) { 
-        { message = Text.concat(msg.message, " ping") };
+    let app_msg : ?AppMessage = from_candid (args.message);
+    switch (app_msg) {
+      case (?msg) {
+        switch (msg) {
+          case (#PingPong(message)) {
+            let new_msg : PingPongMessage = {
+              message = Text.concat(message.message, " ping");
+            };
+
+            Debug.print("Received message: " # debug_show (new_msg));
+
+            await send_app_message(args.client_key, #PingPong(new_msg));
+          };
+          case (#GroupMessage(message)) {
+            let new : GroupChatMessage = switch (message) {
+              case (#UserTyping(message)) {
+                { name = message.name }
+              };
+              case (#Message(message)) {
+                 {
+                  name = message.name;
+                  message = message.message;
+                };
+              };
+            };
+            await send_app_message(args.client_key, #GroupMessage(new));
+
+          };
+        };
+
       };
       case (null) {
         Debug.print("Could not deserialize message");
         return;
       };
     };
-
-    Debug.print("Received message: " # debug_show (new_msg));
-
-    await send_app_message(args.client_key, new_msg);
   };
 
   func on_close(args : IcWebSocketCdk.OnCloseCallbackArgs) : async () {
     Debug.print("Client " # debug_show (args.client_key) # " disconnected");
+
+    /// On close event we remove the client from the list of client
+    let index = Buffer.indexOf<IcWebSocketCdk.ClientPublicKey>(args.client_key, connected_clients, Blob.equal);
+    switch (index) {
+      case (null) {
+        // Do nothing
+      };
+      case (?index) {
+        // remove the client at the given even
+        ignore connected_clients.remove(index);
+      };
+    };
+  };
+
+  // Returns an array of the the clients connect to the canister
+  public shared query func getAllConnectedClients() : async [IcWebSocketCdk.ClientPublicKey] {
+    return Buffer.toArray<IcWebSocketCdk.ClientPublicKey>(connected_clients);
   };
 
   let handlers = IcWebSocketCdk.WsHandlers(

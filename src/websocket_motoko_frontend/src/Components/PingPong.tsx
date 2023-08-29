@@ -38,23 +38,27 @@ const PingPong = () => {
 
       setMessagesCount(messagesCount + 1);
 
-      try {
-        setTimeout(async () => {
-          const sentMessage: AppMessage = {
-            message: "pong",
-          };
-          await ws.send(serializeAppMessage(sentMessage));
-          const fromFrontendMessage: uiMessage = {
-            from: "frontend",
-            message: sentMessage.message,
-          };
-          messages.push(fromFrontendMessage);
-        }, 2000);
-      } catch (error) {
-        console.log("Error on sending message", error);
-      }
+      setTimeout(async () => {
+        sendMessage();
+      }, 2000);
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const sendMessage = async () => {
+    try {
+      const sentMessage: AppMessage = {
+        message: "pong",
+      };
+      await ws.send(serializeAppMessage(sentMessage));
+      const fromFrontendMessage: uiMessage = {
+        from: "frontend",
+        message: sentMessage.message,
+      };
+      messages.push(fromFrontendMessage);
+    } catch (error) {
+      console.log("Error on sending message", error);
     }
   };
 
