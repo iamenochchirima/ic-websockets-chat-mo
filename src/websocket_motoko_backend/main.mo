@@ -52,7 +52,12 @@ actor {
         };
       };
       case (#GroupMessage(message)) {
-
+        switch (await IcWebSocketCdk.ws_send(ws_state, client_key, to_candid (message))) {
+          case (#Err(err)) {
+            Debug.print("Could not send message:" # debug_show (#Err(err)));
+          };
+          case (_) {};
+        };
       };
     };
   };
@@ -73,6 +78,7 @@ actor {
     switch (app_msg) {
       case (?msg) {
         switch (msg) {
+          // If the message is simply a ping pong
           case (#PingPong(message)) {
             let new_msg : PingPongMessage = {
               message = Text.concat(message.message, " ping");
@@ -82,20 +88,13 @@ actor {
 
             await send_app_message(args.client_key, #PingPong(new_msg));
           };
+          // If the message is a group chat message
           case (#GroupMessage(message)) {
-            let new : GroupChatMessage = switch (message) {
-              case (#UserTyping(message)) {
-                { name = message.name }
-              };
-              case (#Message(message)) {
-                 {
-                  name = message.name;
-                  message = message.message;
-                };
-              };
-            };
-            await send_app_message(args.client_key, #GroupMessage(new));
+            let clients_to_send = Buffer.toArray<IcWebSocketCdk.ClientPublicKey>(connected_clients);
 
+            for (client in clients_to_send.vals()) {
+              await send_app_message(client, #GroupMessage(message));
+            };
           };
         };
 
