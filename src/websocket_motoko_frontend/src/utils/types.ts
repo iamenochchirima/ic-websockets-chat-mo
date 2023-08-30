@@ -10,6 +10,7 @@ export interface Typing {
 export type GroupChatMessage =
   | { UserTyping: Typing }
   | { Message: ChatMessage };
+  
 export interface PingPongMessage {
   message: string;
 }

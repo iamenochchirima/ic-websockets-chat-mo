@@ -44,7 +44,7 @@ actor {
         Debug.print("Sending message: " # debug_show (message));
 
         // here we call the ws_send from the CDK!!
-        switch (await IcWebSocketCdk.ws_send(ws_state, client_key, to_candid (message))) {
+        switch (await IcWebSocketCdk.ws_send(ws_state, client_key, to_candid (msg))) {
           case (#Err(err)) {
             Debug.print("Could not send message:" # debug_show (#Err(err)));
           };
@@ -52,7 +52,7 @@ actor {
         };
       };
       case (#GroupMessage(message)) {
-        switch (await IcWebSocketCdk.ws_send(ws_state, client_key, to_candid (message))) {
+        switch (await IcWebSocketCdk.ws_send(ws_state, client_key, to_candid (msg))) {
           case (#Err(err)) {
             Debug.print("Could not send message:" # debug_show (#Err(err)));
           };

@@ -2,19 +2,15 @@ import React, { useEffect, useState } from "react";
 import { BsArrowDown, BsArrowUp } from "react-icons/bs";
 import { deserializeAppMessage, serializeAppMessage } from "../utils/idl";
 import { ws } from "../utils/ws";
+import { AppMessage, PingPongMessage } from "../utils/types";
 
 type uiMessage = {
   from: string;
-  message: string;
+  message: AppMessage;
 };
-
-type AppMessage = {
-  message: string;
-};
-
-let messages: uiMessage[] = [];
 
 const PingPong = () => {
+  const [messages, setMessages] = useState<uiMessage[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const [messagesCount, setMessagesCount] = useState(0);
   const [connecting, setConnecting] = useState(true);
@@ -30,33 +26,46 @@ const PingPong = () => {
   ws.onmessage = async (event) => {
     try {
       const recievedMessage = deserializeAppMessage(event.data);
-      const fromBackendMessage: uiMessage = {
-        from: "backend",
-        message: recievedMessage.message,
-      };
-      messages.push(fromBackendMessage);
+      switch (Object.keys(recievedMessage)[0]) {
+        case "PingPong":
+          console.log("PingPong Message", recievedMessage);
 
-      setMessagesCount(messagesCount + 1);
+          const fromBackendMessage: uiMessage = {
+            from: "backend",
+            message: recievedMessage,
+          };
+          setMessages(prev => [...prev, fromBackendMessage]);
 
-      setTimeout(async () => {
-        sendMessage();
-      }, 2000);
+          setMessagesCount(prev => prev + 1);
+
+          setTimeout(async () => {
+            sendMessage();
+          }, 1000);
+          break;
+        case "GroupMessage":
+          console.log("Group Message", recievedMessage);
+          break;
+        default:
+          console.log("Unknown message type:", recievedMessage);
+      }
     } catch (error) {
-      console.log(error);
+      console.log("Error deserializing message", error);
     }
   };
 
   const sendMessage = async () => {
     try {
-      const sentMessage: AppMessage = {
+      const sentMessage: PingPongMessage = {
         message: "pong",
       };
-      await ws.send(serializeAppMessage(sentMessage));
+      const appMessage: AppMessage = { PingPong: sentMessage };
+
+      await ws.send(serializeAppMessage(appMessage));
       const fromFrontendMessage: uiMessage = {
         from: "frontend",
-        message: sentMessage.message,
+        message: appMessage,
       };
-      messages.push(fromFrontendMessage);
+      setMessages(prev => [...prev, fromFrontendMessage]);
     } catch (error) {
       console.log("Error on sending message", error);
     }
