@@ -8,7 +8,7 @@ import {
   Typing,
 } from "../utils/types";
 
-const Chat = () => {
+const Chat = ({ isConnected, connecting }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [userVal, setUserVal] = useState("");
   const [userName, setUserName] = useState("");
@@ -16,20 +16,14 @@ const Chat = () => {
 
   const handleUsernameChange = (event) => {
     setUserName(userVal);
+    const handleScrollToBottom = () => {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    };
+    handleScrollToBottom();
   };
 
   const handleMessageChange = async (event) => {
     setMessage(event.target.value);
-
-    const sentMessage: Typing = {
-      name: userName,
-    };
-    const chat: GroupChatMessage = {
-      UserTyping: sentMessage,
-    };
-    const appMessage: AppMessage = { GroupMessage: chat };
-
-    // await ws.send(serializeAppMessage(appMessage));
   };
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -94,6 +88,16 @@ const Chat = () => {
               id="messages"
               className="flex w-full min-h-[400px] flex-col space-y-4 p-3 overflow-y-auto"
             >
+              <div className="w-full h-full flex gap-5 items-center justify-center my-5">
+                {isConnected && (
+                  <h3 className="text-lg font-semibold">Websocket open</h3>
+                )}
+                {connecting && (
+                  <h3 className="text-lg font-semibold">
+                    Websocket connecting
+                  </h3>
+                )}
+              </div>
               {messages.map((msg, index) => (
                 <div key={index} className="chat-message">
                   <div

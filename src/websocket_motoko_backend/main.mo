@@ -8,7 +8,9 @@ import Bool "mo:base/Bool";
 
 actor {
   // Paste here the principal of the gateway obtained when running the gateway
-  let gateway_principal : Text = "jkhgq-q7bza-ztzvn-swx6g-dgkdp-24g7z-54mt2-2edmj-7j4n7-x7qnj-oqe";
+  let gateway_principal : Text = "3656s-3kqlj-dkm5d-oputg-ymybu-4gnuq-7aojd-w2fzw-5lfp2-4zhx3-4ae";
+
+  // let gateway_principal : Text = "jkhgq-q7bza-ztzvn-swx6g-dgkdp-24g7z-54mt2-2edmj-7j4n7-x7qnj-oqe";
 
   let connected_clients = Buffer.Buffer<IcWebSocketCdk.ClientPublicKey>(0);
 

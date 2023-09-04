@@ -1,15 +1,25 @@
 import IcWebSocket from "ic-websocket-js";
 import {
-    canisterId,
-    websocket_motoko_backend,
+    createActor,
   } from "../../../declarations/websocket_motoko_backend";
 
+// Production
+const gatewayUrl = "wss://gateway.icws.io";
+const icUrl = "https://icp0.io";
+const canisterId = "a4xo7-maaaa-aaaal-qccga-cai";
 
-const gatewayUrl = "ws://127.0.0.1:8080";
-const icUrl = "http://127.0.0.1:4943";
+// Local test
+// const gatewayUrl = "ws://127.0.0.1:8080";
+// const icUrl = "http://127.0.0.1:4943";
+
+const websocketBackendActor = createActor(canisterId, {
+  agentOptions: {
+    host: icUrl,
+  }
+});
 
 export const ws = new IcWebSocket(gatewayUrl, undefined, {
-  canisterActor: websocket_motoko_backend,
+  canisterActor: websocketBackendActor,
   canisterId: canisterId,
   networkUrl: icUrl,
   localTest: true,

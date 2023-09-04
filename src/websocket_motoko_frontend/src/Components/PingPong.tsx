@@ -9,49 +9,35 @@ type uiMessage = {
   message: AppMessage;
 };
 
-const PingPong = () => {
+const PingPong = ({ connecting, isClosed, isConnected }) => {
   const [messages, setMessages] = useState<uiMessage[]>([]);
-  const [isConnected, setIsConnected] = useState(false);
   const [messagesCount, setMessagesCount] = useState(0);
-  const [connecting, setConnecting] = useState(true);
-  const [isClosed, setIsClosed] = useState(false);
+  const [isActive, setIsActive] = useState(false);
 
-  ws.onopen = () => {
-    console.log("Connected to the canister");
-    setIsConnected(true);
-    setIsClosed(false);
-    setConnecting(false);
-  };
+  useEffect(() => {
+    ws.onmessage = async (event) => {
+      try {
+        setIsActive(true);
+        const recievedMessage = deserializeAppMessage(event.data);
 
-  ws.onmessage = async (event) => {
-    try {
-      const recievedMessage = deserializeAppMessage(event.data);
-      switch (Object.keys(recievedMessage)[0]) {
-        case "PingPong":
-          console.log("PingPong Message", recievedMessage);
-
+        if ("PingPong" in recievedMessage) {
           const fromBackendMessage: uiMessage = {
             from: "backend",
             message: recievedMessage,
           };
-          setMessages(prev => [...prev, fromBackendMessage]);
+          setMessages((prev) => [...prev, fromBackendMessage]);
 
-          setMessagesCount(prev => prev + 1);
+          setMessagesCount((prev) => prev + 1);
 
           setTimeout(async () => {
             sendMessage();
           }, 1000);
-          break;
-        case "GroupMessage":
-          console.log("Group Message", recievedMessage);
-          break;
-        default:
-          console.log("Unknown message type:", recievedMessage);
+        }
+      } catch (error) {
+        console.log("Error deserializing message", error);
       }
-    } catch (error) {
-      console.log("Error deserializing message", error);
-    }
-  };
+    };
+  }, []);
 
   const sendMessage = async () => {
     try {
@@ -65,21 +51,10 @@ const PingPong = () => {
         from: "frontend",
         message: appMessage,
       };
-      setMessages(prev => [...prev, fromFrontendMessage]);
+      setMessages((prev) => [...prev, fromFrontendMessage]);
     } catch (error) {
       console.log("Error on sending message", error);
     }
-  };
-
-  ws.onclose = () => {
-    console.log("Disconnected from the canister");
-    setIsClosed(true);
-    setIsConnected(false);
-    setConnecting(false);
-  };
-
-  ws.onerror = (error) => {
-    console.log("Error:", error);
   };
 
   const handleClose = () => {
@@ -97,6 +72,8 @@ const PingPong = () => {
     }
   }, [messagesCount]);
 
+  console.log(isActive);
+
   console.log(messages);
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
@@ -111,14 +88,26 @@ const PingPong = () => {
           {connecting && (
             <h3 className="text-lg font-semibold">Websocket connecting</h3>
           )}
-          <button
-            onClick={isConnected ? handleClose : handleReconnect}
-            className={` ${
-              connecting ? `hidden` : `block`
-            } bg-blue-500 rounded-lg py-1.5 px-2 font-semibold hover:bg-gray-900`}
-          >
-            {isConnected ? "Close" : "Reconnect"}
-          </button>
+
+          {!isActive && !connecting ? (
+            <button
+              onClick={handleReconnect}
+              className={` ${
+                connecting ? `hidden` : `block`
+              } bg-blue-500 rounded-lg py-1.5 px-2 font-semibold hover:bg-gray-900`}
+            >
+              Replay
+            </button>
+          ) : (
+            <button
+              onClick={isConnected ? handleClose : handleReconnect}
+              className={` ${
+                connecting ? `hidden` : `block`
+              } bg-blue-500 rounded-lg py-1.5 px-2 font-semibold hover:bg-gray-900`}
+            >
+              {isConnected ? "Close" : "Reconnect"}
+            </button>
+          )}
         </div>
         <div className="mt-5">
           {messages.map((message, index) => (
