@@ -8,6 +8,7 @@ const Chat = ({ isConnected, connecting }) => {
   const [userVal, setUserVal] = useState("");
   const [userName, setUserName] = useState("");
   const [message, setMessage] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
 
   const handleUsernameChange = (event) => {
     setUserName(userVal);
@@ -32,6 +33,15 @@ const Chat = ({ isConnected, connecting }) => {
 
   const handleMessageChange = async (event) => {
     setMessage(event.target.value);
+    console.log("Message: ", event.target.value)
+    const msg: GroupChatMessage = {
+      name: userName,
+      message: event.target.value,
+      isTyping: true,
+    }
+    const appMessage: AppMessage = { GroupMessage: msg };
+    await ws.send(serializeAppMessage(appMessage));
+    console.log("Typing message sent")
   };
 
   const sendGroupChatMessage = async (event) => {
@@ -54,25 +64,23 @@ const Chat = ({ isConnected, connecting }) => {
       try {
         const recievedMessage = deserializeAppMessage(event.data);
 
+        // If the message is a GroupMessage, check if it is a typing message
         if ("GroupMessage" in recievedMessage) {
-          console.log(
-            "Sender name",
-            recievedMessage.GroupMessage.name,
-            "My name",
-            userName
-          );
-          if (recievedMessage.GroupMessage.name !== userName) {
-            setMessages((prev) => [...prev, recievedMessage.GroupMessage]);
+          if (recievedMessage.GroupMessage.isTyping) {
+            handleIsTypingMessage(recievedMessage.GroupMessage);
+          } else {
+            if (recievedMessage.GroupMessage.name !== userName) {
+              setMessages((prev) => [...prev, recievedMessage.GroupMessage]);
+            }
           }
         }
-
+        // If the message is a JoinedChat message, add it to the messages
         if ("JoinedChat" in recievedMessage) {
           const chat: GroupChatMessage = {
             name: recievedMessage.JoinedChat,
             message: "_joined_the_chat_",
             isTyping: false,
           };
-          console.log(chat);
           setMessages((prev) => [...prev, chat]);
         }
       } catch (error) {
@@ -80,6 +88,17 @@ const Chat = ({ isConnected, connecting }) => {
       }
     };
   }, [ws.onmessage, userName]);
+
+  const handleIsTypingMessage = (message: GroupChatMessage) => {
+    if (message.name !== userName) {
+      setIsTyping(true);
+      setTimeout(() => {
+        setIsTyping(false);
+      }, 3000);
+    }
+  };
+
+  console.log("Typing: ", isTyping)
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
@@ -111,6 +130,11 @@ const Chat = ({ isConnected, connecting }) => {
               id="messages"
               className="flex w-full min-h-[400px] flex-col space-y-4 p-3 overflow-y-auto"
             >
+              {isTyping && (
+                <div className="w-full h-full flex gap-5 items-center justify-center my-5">
+                  <h3 className="text-lg font-semibold">Someone is typing</h3>  
+                </div>
+              )}
               <div className="w-full h-full flex gap-5 items-center justify-center my-5">
                 {isConnected && (
                   <h3 className="text-lg font-semibold">Websocket open</h3>

@@ -11,7 +11,7 @@ import {
 // Local test
 const gatewayUrl = "ws://127.0.0.1:8080";
 const icUrl = "http://127.0.0.1:4943";
-const canisterId = "br5f7-7uaaa-aaaaa-qaaca-cai";
+const canisterId = "bkyz2-fmaaa-aaaaa-qaaaq-cai";
 
 const websocketBackendActor = createActor(canisterId, {
   agentOptions: {
