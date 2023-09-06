@@ -1,8 +1,8 @@
 {
-  "websocket_motoko_backend": {
+  "chat_backend": {
     "ic": "a4xo7-maaaa-aaaal-qccga-cai"
   },
-  "websocket_motoko_frontend": {
+  "chat_frontend": {
     "ic": "a3wil-byaaa-aaaal-qccgq-cai"
   }
 }

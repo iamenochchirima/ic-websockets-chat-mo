@@ -1,9 +1,7 @@
 import React, { useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Layout from "./Components/Layout";
-import PingPong from "./Components/PingPong";
 import Chat from "./Components/Chat";
 import { ws } from "./utils/ws";
+import Header from "./Components/Header";
 
 const App = () => {
   const [connecting, setConnecting] = useState(true);
@@ -29,17 +27,10 @@ const App = () => {
   };
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route
-            index
-            element={<PingPong {...{ connecting, isClosed, isConnected }} />}
-          />
-          <Route path="/chat" element={<Chat {...{isConnected, connecting}} />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <div className="bg-gray-900 text-gray-300">
+      <Header />
+      <Chat {...{ connecting, isClosed, isConnected }} />
+    </div>
   );
 };
 

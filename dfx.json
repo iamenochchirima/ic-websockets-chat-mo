@@ -1,19 +1,19 @@
 {
   "canisters": {
-    "websocket_motoko_backend": {
-      "main": "src/websocket_motoko_backend/main.mo",
+    "chat_backend": {
+      "main": "src/chat_backend/main.mo",
       "type": "motoko"
     },
-    "websocket_motoko_frontend": {
+    "chat_frontend": {
       "dependencies": [
-        "websocket_motoko_backend"
+        "chat_backend"
       ],
       "frontend": {
-        "entrypoint": "src/websocket_motoko_frontend/src/index.html"
+        "entrypoint": "src/chat_frontend/src/index.html"
       },
       "source": [
-        "src/websocket_motoko_frontend/assets",
-        "dist/websocket_motoko_frontend/"
+        "src/chat_frontend/assets",
+        "dist/chat_frontend/"
       ],
       "type": "assets"
     }

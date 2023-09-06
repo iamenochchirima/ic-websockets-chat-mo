@@ -8,41 +8,29 @@ import Bool "mo:base/Bool";
 
 actor {
   // Paste here the principal of the gateway obtained when running the gateway
-  let gateway_principal : Text = "3656s-3kqlj-dkm5d-oputg-ymybu-4gnuq-7aojd-w2fzw-5lfp2-4zhx3-4ae";
+  // let gateway_principal : Text = "3656s-3kqlj-dkm5d-oputg-ymybu-4gnuq-7aojd-w2fzw-5lfp2-4zhx3-4ae";
 
-  // let gateway_principal : Text = "jkhgq-q7bza-ztzvn-swx6g-dgkdp-24g7z-54mt2-2edmj-7j4n7-x7qnj-oqe";
+  let gateway_principal : Text = "jkhgq-q7bza-ztzvn-swx6g-dgkdp-24g7z-54mt2-2edmj-7j4n7-x7qnj-oqe";
 
   let connected_clients = Buffer.Buffer<IcWebSocketCdk.ClientPublicKey>(0);
 
-  type PingPongMessage = {
-    message : Text;
-  };
-
-  type Typing = {
-    name : Text;
-  };
-
-  type ChatMessage = {
+ type GroupChatMessage = {
     name : Text;
     message : Text;
-  };
-
-  type GroupChatMessage = {
-    #Message : ChatMessage;
-    #UserTyping : Typing;
+    isTyping : Bool;
   };
 
   type AppMessage = {
-    #PingPong : PingPongMessage;
     #GroupMessage : GroupChatMessage;
+    #JoinedChat : Text;
   };
 
   var ws_state = IcWebSocketCdk.IcWebSocketState(gateway_principal);
 
   /// A custom function to send the message to the client
-  func send_app_message(client_key : IcWebSocketCdk.ClientPublicKey, msg : AppMessage) : async () {
+  public func send_app_message(client_key : IcWebSocketCdk.ClientPublicKey, msg : AppMessage) : async () {
     switch (msg) {
-      case (#PingPong(message)) {
+      case (#JoinedChat(message)) {
         Debug.print("Sending message: " # debug_show (message));
 
         // here we call the ws_send from the CDK!!
@@ -65,10 +53,6 @@ actor {
   };
 
   func on_open(args : IcWebSocketCdk.OnOpenCallbackArgs) : async () {
-    let message : PingPongMessage = {
-      message = "Ping";
-    };
-    await send_app_message(args.client_key, #PingPong(message));
     connected_clients.add(args.client_key);
   };
 
@@ -81,14 +65,12 @@ actor {
       case (?msg) {
         switch (msg) {
           // If the message is simply a ping pong
-          case (#PingPong(message)) {
-            let new_msg : PingPongMessage = {
-              message = Text.concat(message.message, " ping");
+          case (#JoinedChat(message)) {
+            let clients_to_send = Buffer.toArray<IcWebSocketCdk.ClientPublicKey>(connected_clients);
+
+            for (client in clients_to_send.vals()) {
+              await send_app_message(client, #JoinedChat(message));
             };
-
-            Debug.print("Received message: " # debug_show (new_msg));
-
-            await send_app_message(args.client_key, #PingPong(new_msg));
           };
           // If the message is a group chat message
           case (#GroupMessage(message)) {

@@ -1,15 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { ws } from "../utils/ws";
 import { deserializeAppMessage, serializeAppMessage } from "../utils/idl";
-import {
-  AppMessage,
-  ChatMessage,
-  GroupChatMessage,
-  Typing,
-} from "../utils/types";
+import { AppMessage, GroupChatMessage } from "../utils/types";
 
 const Chat = ({ isConnected, connecting }) => {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<GroupChatMessage[]>([]);
   const [userVal, setUserVal] = useState("");
   const [userName, setUserName] = useState("");
   const [message, setMessage] = useState("");
@@ -22,23 +17,36 @@ const Chat = ({ isConnected, connecting }) => {
     handleScrollToBottom();
   };
 
+  useEffect(() => {
+    if (userName) {
+      sendJoinedChatMessage();
+    }
+  }, [userName]);
+
+  const sendJoinedChatMessage = async () => {
+    const msg: AppMessage = {
+      JoinedChat: userName,
+    };
+    await ws.send(serializeAppMessage(msg));
+  };
+
   const handleMessageChange = async (event) => {
     setMessage(event.target.value);
   };
-  const handleSubmit = async (event) => {
+
+  const sendGroupChatMessage = async (event) => {
     event.preventDefault();
 
-    const sentMessage: ChatMessage = {
+    const chat: GroupChatMessage = {
       name: userName,
       message: message,
-    };
-    const chat: GroupChatMessage = {
-      Message: sentMessage,
+      isTyping: false,
     };
     const appMessage: AppMessage = { GroupMessage: chat };
 
-    await ws.send(serializeAppMessage(appMessage));
+    setMessages((prev) => [...prev, chat]);
     setMessage("");
+    await ws.send(serializeAppMessage(appMessage));
   };
 
   useEffect(() => {
@@ -47,16 +55,31 @@ const Chat = ({ isConnected, connecting }) => {
         const recievedMessage = deserializeAppMessage(event.data);
 
         if ("GroupMessage" in recievedMessage) {
-          const msg = recievedMessage.GroupMessage;
-          if ("Message" in msg) {
-            setMessages((prev) => [...prev, msg.Message]);
+          console.log(
+            "Sender name",
+            recievedMessage.GroupMessage.name,
+            "My name",
+            userName
+          );
+          if (recievedMessage.GroupMessage.name !== userName) {
+            setMessages((prev) => [...prev, recievedMessage.GroupMessage]);
           }
+        }
+
+        if ("JoinedChat" in recievedMessage) {
+          const chat: GroupChatMessage = {
+            name: recievedMessage.JoinedChat,
+            message: "_joined_the_chat_",
+            isTyping: false,
+          };
+          console.log(chat);
+          setMessages((prev) => [...prev, chat]);
         }
       } catch (error) {
         console.log("Error deserializing message", error);
       }
     };
-  }, []);
+  }, [ws.onmessage, userName]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
@@ -103,32 +126,43 @@ const Chat = ({ isConnected, connecting }) => {
                   <div
                     className={`${
                       userName === msg.name ? `justify-end` : ``
-                    } flex items-end `}
+                    } flex items-end  ${
+                      msg.message === "_joined_the_chat_"
+                        ? "justify-center"
+                        : ""
+                    } `}
                   >
                     <div
                       className={`${
                         userName === msg.name ? `items-end` : `items-start`
                       } flex flex-col space-y-2 max-w-xs mx-2 order-2 `}
                     >
-                      <h1>{msg.name}</h1>
-                      <div>
-                        <span
-                          className={`${
-                            userName === msg.name
-                              ? `bg-blue-600 text-white`
-                              : ` bg-gray-300 text-gray-600`
-                          } backdrop:px-4 px-2 py-2 rounded-lg inline-block rounded-bl-none`}
-                        >
-                          {msg.message}
-                        </span>
-                      </div>
+                      {msg.message === "_joined_the_chat_" ? (
+                        <h1>
+                          {msg.name === userName ? "You" : `${msg.name}`} joined
+                          chat
+                        </h1>
+                      ) : (
+                        <div>
+                          <h1>{msg.name}</h1>
+                          <span
+                            className={`${
+                              userName === msg.name
+                                ? `bg-blue-600 text-white`
+                                : ` bg-gray-300 text-gray-600`
+                            } backdrop:px-4 px-2 py-2 rounded-lg inline-block rounded-bl-none`}
+                          >
+                            {msg.message}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
               ))}
             </div>
             {/* Message input */}
-            <form onSubmit={handleSubmit} className="p-2">
+            <form onSubmit={sendGroupChatMessage} className="p-2">
               <div className="border-t-2 border-gray-200 px-4 pt-4 mb-2 sm:mb-0">
                 <div className="relative flex">
                   <input

@@ -1,15 +1,13 @@
 import { IDL } from "@dfinity/candid";
 import { AppMessage } from "./types";
 
-const PingPongMessage = IDL.Record({ message: IDL.Text });
-const Typing = IDL.Record({ name: IDL.Text });
-const ChatMessage = IDL.Record({ name: IDL.Text, message: IDL.Text });
-const GroupChatMessage = IDL.Variant({
-  UserTyping: Typing,
-  Message: ChatMessage,
+const GroupChatMessage = IDL.Record({
+  name: IDL.Text,
+  message: IDL.Text,
+  isTyping: IDL.Bool,
 });
 const AppMessageIdl = IDL.Variant({
-  PingPong: PingPongMessage,
+  JoinedChat: IDL.Text,
   GroupMessage: GroupChatMessage,
 });
 
