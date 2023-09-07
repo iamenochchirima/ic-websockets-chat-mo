@@ -1,14 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { MutableRefObject, useEffect, useRef, useState } from "react";
 import { ws } from "../utils/ws";
 import { deserializeAppMessage, serializeAppMessage } from "../utils/idl";
 import { AppMessage, GroupChatMessage } from "../utils/types";
 
-const Chat = ({ isConnected, connecting }) => {
+const Chat = () => {
   const [messages, setMessages] = useState<GroupChatMessage[]>([]);
   const [userVal, setUserVal] = useState("");
   const [userName, setUserName] = useState("");
   const [message, setMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [typingUser, setTypingUser] = useState("");
+  const [timer, setTimer] = useState(null);
 
   const handleUsernameChange = (event) => {
     setUserName(userVal);
@@ -33,16 +35,29 @@ const Chat = ({ isConnected, connecting }) => {
 
   const handleMessageChange = async (event) => {
     setMessage(event.target.value);
-    console.log("Message: ", event.target.value)
     const msg: GroupChatMessage = {
       name: userName,
       message: event.target.value,
       isTyping: true,
-    }
+    };
     const appMessage: AppMessage = { GroupMessage: msg };
-    await ws.send(serializeAppMessage(appMessage));
-    console.log("Typing message sent")
+    sendTypingMessage(appMessage);
   };
+
+  const sendTypingMessage = async (appMessage: AppMessage) => {
+    if (!timer) {
+      console.log("sending");
+      // TODO: Modify the functionlity of the timer
+      setTimer(
+        setTimeout(() => {
+          setTimer(null);
+        }, 3000)
+      );
+      await ws.send(serializeAppMessage(appMessage));
+      console.log("Typing message sent")
+    }
+  };
+
 
   const sendGroupChatMessage = async (event) => {
     event.preventDefault();
@@ -92,19 +107,30 @@ const Chat = ({ isConnected, connecting }) => {
   const handleIsTypingMessage = (message: GroupChatMessage) => {
     if (message.name !== userName) {
       setIsTyping(true);
+      setTypingUser(message.name);
       setTimeout(() => {
         setIsTyping(false);
       }, 3000);
     }
   };
 
-  console.log("Typing: ", isTyping)
+  function useChatScroll<T>(dep: T): MutableRefObject<HTMLDivElement> {
+    const ref = useRef<HTMLDivElement>();
+    useEffect(() => {
+      if (ref.current) {
+        ref.current.scrollTop = ref.current.scrollHeight;
+      }
+    }, [dep]);
+    return ref;
+  }
+
+  const ref = useChatScroll(messages);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
-      <div className="min-h-[400px] min-w-[800px] mt-5 rounded bg-gray-700">
+    <div className="flex justify-center min-h-screen">
+      <div className="flex-grow max-w-[800px] rounded ">
         {!userName ? (
-          <div className="p-2 mt-[50px] mx-10">
+          <div className="p-2  h-[300px] mx-10 bg-gray-700">
             <form action="" onSubmit={handleUsernameChange} className="">
               <div className="flex gap-10 items-center">
                 <input
@@ -124,79 +150,82 @@ const Chat = ({ isConnected, connecting }) => {
             </form>
           </div>
         ) : (
-          <>
+          <div className="bg-gray-700">
             {/* Chat interface */}
-            <div
-              id="messages"
-              className="flex w-full min-h-[400px] flex-col space-y-4 p-3 overflow-y-auto"
-            >
-              {isTyping && (
-                <div className="w-full h-full flex gap-5 items-center justify-center my-5">
-                  <h3 className="text-lg font-semibold">Someone is typing</h3>  
-                </div>
-              )}
-              <div className="w-full h-full flex gap-5 items-center justify-center my-5">
-                {isConnected && (
-                  <h3 className="text-lg font-semibold">Websocket open</h3>
-                )}
-                {connecting && (
-                  <h3 className="text-lg font-semibold">
-                    Websocket connecting
-                  </h3>
+            <div className="flex w-full min-h-[400px] max-h-[500px] flex-col space-y-4 p-3 overflow-y-auto">
+              <div className="p-2 justify-center flex items-center">
+                {isTyping && (
+                  <div
+                    className={`w-fit fit bg-gray-600 rounded-md text-white transition-opacity duration-500 ease-in-out`}
+                  >
+                    <h3 className="">{typingUser} is typing</h3>
+                  </div>
                 )}
               </div>
-              {messages.map((msg, index) => (
-                <div key={index} className="chat-message">
-                  <div
-                    className={`${
-                      userName === msg.name ? `justify-end` : ``
-                    } flex items-end  ${
-                      msg.message === "_joined_the_chat_"
-                        ? "justify-center"
-                        : ""
-                    } `}
-                  >
+              <div
+                ref={ref}
+                className="flex flex-col max-h-screen space-y-4 p-3 overflow-y-auto"
+              >
+                {messages.map((msg, index) => (
+                  <div key={index} className="chat-message">
                     <div
                       className={`${
-                        userName === msg.name ? `items-end` : `items-start`
-                      } flex flex-col space-y-2 max-w-xs mx-2 order-2 `}
+                        userName === msg.name ? `justify-end` : ``
+                      } flex items-end  ${
+                        msg.message === "_joined_the_chat_"
+                          ? "justify-center"
+                          : ""
+                      } `}
                     >
-                      {msg.message === "_joined_the_chat_" ? (
-                        <h1>
-                          {msg.name === userName ? "You" : `${msg.name}`} joined
-                          chat
-                        </h1>
-                      ) : (
-                        <div>
-                          <h1>{msg.name}</h1>
-                          <span
-                            className={`${
-                              userName === msg.name
-                                ? `bg-blue-600 text-white`
-                                : ` bg-gray-300 text-gray-600`
-                            } backdrop:px-4 px-2 py-2 rounded-lg inline-block rounded-bl-none`}
-                          >
-                            {msg.message}
-                          </span>
-                        </div>
-                      )}
+                      <div
+                        className={`${
+                          userName === msg.name ? `items-end` : `items-start`
+                        } flex flex-col space-y-2 max-w-xs mx-2 order-2 `}
+                      >
+                        {msg.message === "_joined_the_chat_" ? (
+                          <h1>
+                            {msg.name === userName ? "You" : `${msg.name}`}{" "}
+                            joined chat
+                          </h1>
+                        ) : (
+                          <div className="">
+                            <h1
+                              className={`${
+                                msg.name === userName
+                                  ? `text-end`
+                                  : `text-start`
+                              }`}
+                            >
+                              {msg.name === userName ? "You" : `${msg.name}`}
+                            </h1>
+                            <span
+                              className={`${
+                                userName === msg.name
+                                  ? `bg-blue-600 text-white`
+                                  : ` bg-gray-300 text-gray-600`
+                              } backdrop:px-4 px-2 py-2 rounded-lg inline-block rounded-bl-none`}
+                            >
+                              {msg.message}
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
             {/* Message input */}
             <form onSubmit={sendGroupChatMessage} className="p-2">
               <div className="border-t-2 border-gray-200 px-4 pt-4 mb-2 sm:mb-0">
-                <div className="relative flex">
-                  <input
-                    type="text"
+                <div className="relative flex gap-3">
+                  <textarea
                     value={message}
                     onChange={handleMessageChange}
                     placeholder="Write your message!"
                     className="w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 pl-12 bg-gray-200 rounded-md py-3"
                   />
-                  <div className="absolute right-0 items-center inset-y-0 hidden sm:flex">
+                 
                     <button
                       type="submit"
                       className="inline-flex items-center justify-center rounded-lg px-4 py-3 transition duration-500 ease-in-out text-white bg-blue-500 hover:bg-blue-400 focus:outline-none"
@@ -211,11 +240,10 @@ const Chat = ({ isConnected, connecting }) => {
                         <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path>
                       </svg>
                     </button>
-                  </div>
                 </div>
               </div>
             </form>
-          </>
+          </div>
         )}
       </div>
     </div>

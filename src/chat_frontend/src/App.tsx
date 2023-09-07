@@ -27,9 +27,9 @@ const App = () => {
   };
 
   return (
-    <div className="bg-gray-900 text-gray-300">
-      <Header />
-      <Chat {...{ connecting, isClosed, isConnected }} />
+    <div className="bg-gray-900 text-gray-300 max-h-full">
+      <Header {...{ connecting, isClosed, isConnected }} />
+      <Chat />
     </div>
   );
 };
