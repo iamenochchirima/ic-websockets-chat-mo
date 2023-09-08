@@ -54,10 +54,9 @@ const Chat = () => {
         }, 3000)
       );
       await ws.send(serializeAppMessage(appMessage));
-      console.log("Typing message sent")
+      console.log("Typing message sent");
     }
   };
-
 
   const sendGroupChatMessage = async (event) => {
     event.preventDefault();
@@ -130,7 +129,7 @@ const Chat = () => {
     <div className="flex justify-center min-h-screen">
       <div className="flex-grow max-w-[800px] rounded ">
         {!userName ? (
-          <div className="p-2  h-[300px] mx-10 bg-gray-700">
+          <div className="p-2 flex flex-col items-center justify-center h-[300px] mx-10 bg-gray-700">
             <form action="" onSubmit={handleUsernameChange} className="">
               <div className="flex gap-10 items-center">
                 <input
@@ -138,11 +137,11 @@ const Chat = () => {
                   type="text"
                   onChange={(e) => setUserVal(e.target.value)}
                   placeholder="Enter your username..."
-                  className="p-2 text-gray-800 border border-gray-400 rounded w-3/4"
+                  className="p-2 text-gray-800 border border-gray-400 rounded flex-grow-0"
                 />
                 <button
                   type="submit"
-                  className="px-4 mx-3 py-2 rounded bg-blue-500"
+                  className="px-4 mx-3 py-2 flex-grow-1 w-auto rounded bg-blue-500"
                 >
                   Join Group
                 </button>
@@ -218,28 +217,28 @@ const Chat = () => {
             {/* Message input */}
             <form onSubmit={sendGroupChatMessage} className="p-2">
               <div className="border-t-2 border-gray-200 px-4 pt-4 mb-2 sm:mb-0">
-                <div className="relative flex gap-3">
+                <div className=" flex items-center gap-3">
                   <textarea
                     value={message}
                     onChange={handleMessageChange}
                     placeholder="Write your message!"
-                    className="w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 pl-12 bg-gray-200 rounded-md py-3"
+                    className="w-full flex-grow-0 focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 pl-12 bg-gray-200 rounded-md py-3"
                   />
-                 
-                    <button
-                      type="submit"
-                      className="inline-flex items-center justify-center rounded-lg px-4 py-3 transition duration-500 ease-in-out text-white bg-blue-500 hover:bg-blue-400 focus:outline-none"
+
+                  <button
+                    type="submit"
+                    className="inline-flex flex-grow-1 items-center justify-center rounded-lg px-4 py-3 transition duration-500 ease-in-out text-white bg-blue-500 hover:bg-blue-400 focus:outline-none"
+                  >
+                    <span className="font-bold">Send</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      className="h-6 w-6 ml-2 transform rotate-90"
                     >
-                      <span className="font-bold">Send</span>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        className="h-6 w-6 ml-2 transform rotate-90"
-                      >
-                        <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path>
-                      </svg>
-                    </button>
+                      <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path>
+                    </svg>
+                  </button>
                 </div>
               </div>
             </form>
