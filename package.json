@@ -20,9 +20,11 @@
     "@dfinity/agent": "^0.18.1",
     "@dfinity/candid": "^0.18.1",
     "@dfinity/principal": "^0.18.1",
+    "crypto": "^1.0.1",
+    "crypto-browserify": "^3.12.0",
     "css-loader": "^6.8.1",
     "file-loader": "^6.2.0",
-    "ic-websocket-js": "github:omnia-network/ic-websocket-sdk-js#41e37667c36d26a535d4247e37711f4bad2184a8",
+    "ic-websocket-js": "github:omnia-network/ic-websocket-sdk-js#dbee657817525a88189c293229188a9c9b4d5b52",
     "postcss-loader": "^7.3.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -30,7 +32,8 @@
     "react-loader-spinner": "^5.4.5",
     "react-router-dom": "^6.15.0",
     "style-loader": "^3.3.3",
-    "ts-loader": "^9.4.4"
+    "ts-loader": "^9.4.4",
+    "tweetnacl": "^1.0.3"
   },
   "devDependencies": {
     "@types/react-dom": "^18.2.7",

@@ -46,15 +46,12 @@ const Chat = () => {
 
   const sendTypingMessage = async (appMessage: AppMessage) => {
     if (!timer) {
-      console.log("sending");
-      // TODO: Modify the functionlity of the timer
       setTimer(
         setTimeout(() => {
           setTimer(null);
         }, 3000)
       );
       await ws.send(serializeAppMessage(appMessage));
-      console.log("Typing message sent");
     }
   };
 
