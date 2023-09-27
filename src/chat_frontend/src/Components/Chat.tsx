@@ -30,7 +30,7 @@ const Chat = () => {
     const msg: AppMessage = {
       JoinedChat: userName,
     };
-    await ws.send(serializeAppMessage(msg));
+   ws.send(serializeAppMessage(msg));
   };
 
   const handleMessageChange = async (event) => {
@@ -51,7 +51,7 @@ const Chat = () => {
           setTimer(null);
         }, 3000)
       );
-      await ws.send(serializeAppMessage(appMessage));
+      ws.send(serializeAppMessage(appMessage));
     }
   };
 
@@ -67,7 +67,7 @@ const Chat = () => {
 
     setMessages((prev) => [...prev, chat]);
     setMessage("");
-    await ws.send(serializeAppMessage(appMessage));
+    ws.send(serializeAppMessage(appMessage));
   };
 
   useEffect(() => {
