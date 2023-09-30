@@ -30,7 +30,7 @@ const Chat = () => {
     const msg: AppMessage = {
       JoinedChat: userName,
     };
-   ws.send(serializeAppMessage(msg));
+    ws.send(serializeAppMessage(msg));
   };
 
   const handleMessageChange = async (event) => {
