@@ -59,9 +59,6 @@ actor {
     connected_clients.add(args.client_principal);
   };
 
-  /// The custom logic is just a ping-pong message exchange between frontend and canister.
-  /// Note that the message from the WebSocket is serialized in CBOR, so we have to deserialize it first
-
   func on_message(args : IcWebSocketCdk.OnMessageCallbackArgs) : async () {
     let app_msg : ?AppMessage = from_candid (args.message);
     switch (app_msg) {
@@ -131,11 +128,6 @@ actor {
     ws_state := IcWebSocketCdk.IcWebSocketState(gateway_principal);
     ws := IcWebSocketCdk.IcWebSocket(params);
   };
-
-  // // method called by the client SDK when instantiating a new IcWebSocket
-  // public shared ({ caller }) func ws_register(args : IcWebSocketCdk.CanisterWsRegisterArguments) : async IcWebSocketCdk.CanisterWsRegisterResult {
-  //   await ws.ws_register(caller, args);
-  // };
 
   // method called by the WS Gateway after receiving FirstMessage from the client
   public shared ({ caller }) func ws_open(args : IcWebSocketCdk.CanisterWsOpenArguments) : async IcWebSocketCdk.CanisterWsOpenResult {
