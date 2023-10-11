@@ -8,10 +8,10 @@ import Bool "mo:base/Bool";
 import Principal "mo:base/Principal";
 
 actor {
-  // Paste here the principal of the gateway obtained when running the gateway
   // Production gateway
   // let gateway_principal : Text = "lg3nb-si435-jnrox-6qdrd-i6tuh-73huj-vg32b-l3cqf-kpyf4-7c6zg-nae";
 
+  // Paste here the principal of the gateway obtained when running the gateway
   // Local gateway
   let gateway_principal : Text = "jkhgq-q7bza-ztzvn-swx6g-dgkdp-24g7z-54mt2-2edmj-7j4n7-x7qnj-oqe";
 
@@ -64,7 +64,6 @@ actor {
     switch (app_msg) {
       case (?msg) {
         switch (msg) {
-          // If the message is simply a ping pong
           case (#JoinedChat(message)) {
             let clients_to_send = Buffer.toArray<IcWebSocketCdk.ClientPrincipal>(connected_clients);
 
@@ -72,7 +71,6 @@ actor {
               await send_app_message(client, #JoinedChat(message));
             };
           };
-          // If the message is a group chat message
           case (#GroupMessage(message)) {
             let clients_to_send = Buffer.toArray<IcWebSocketCdk.ClientPrincipal>(connected_clients);
 
