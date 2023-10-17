@@ -152,7 +152,7 @@ const Chat = () => {
               <div className="p-2 justify-center flex items-center">
                 {isTyping && (
                   <div
-                    className={`w-fit fit bg-gray-600 rounded-md text-white transition-opacity duration-500 ease-in-out`}
+                    className={`w-fit fit bg-gray-600 px-3 py-1 rounded-md text-white transition-opacity duration-500 ease-in-out z-10 fixed top-4`}
                   >
                     <h3 className="">{typingUser} is typing</h3>
                   </div>

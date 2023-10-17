@@ -9,7 +9,7 @@ import Principal "mo:base/Principal";
 
 actor {
   // Production gateway
-  // let gateway_principal : Text = "lg3nb-si435-jnrox-6qdrd-i6tuh-73huj-vg32b-l3cqf-kpyf4-7c6zg-nae";
+  // let gateway_principal : Text = "3656s-3kqlj-dkm5d-oputg-ymybu-4gnuq-7aojd-w2fzw-5lfp2-4zhx3-4ae";
 
   // Paste here the principal of the gateway obtained when running the gateway
   // Local gateway
@@ -116,15 +116,16 @@ actor {
   );
 
   let params = IcWebSocketCdk.WsInitParams(
-    ws_state,
     handlers,
-
+    null,
+    null,
+    null,
   );
-  var ws = IcWebSocketCdk.IcWebSocket(params);
+  var ws = IcWebSocketCdk.IcWebSocket(ws_state, params);
 
   system func postupgrade() {
     ws_state := IcWebSocketCdk.IcWebSocketState(gateway_principal);
-    ws := IcWebSocketCdk.IcWebSocket(params);
+    ws := IcWebSocketCdk.IcWebSocket(ws_state, params);
   };
 
   // method called by the WS Gateway after receiving FirstMessage from the client
