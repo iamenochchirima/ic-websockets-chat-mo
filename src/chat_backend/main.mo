@@ -1,4 +1,4 @@
-import IcWebSocketCdk "mo:ic-websocket-cdk-mo";
+import IcWebSocketCdk "mo:ic-websocket-cdk";
 import Text "mo:base/Text";
 import Debug "mo:base/Debug";
 import HashMap "mo:base/HashMap";
@@ -9,11 +9,11 @@ import Principal "mo:base/Principal";
 
 actor {
   // Production gateway
-  // let gateway_principal : Text = "3656s-3kqlj-dkm5d-oputg-ymybu-4gnuq-7aojd-w2fzw-5lfp2-4zhx3-4ae";
+  let gateway_principal : Text = "3656s-3kqlj-dkm5d-oputg-ymybu-4gnuq-7aojd-w2fzw-5lfp2-4zhx3-4ae";
 
   // Paste here the principal of the gateway obtained when running the gateway
   // Local gateway
-  let gateway_principal : Text = "jkhgq-q7bza-ztzvn-swx6g-dgkdp-24g7z-54mt2-2edmj-7j4n7-x7qnj-oqe";
+  // let gateway_principal : Text = "jkhgq-q7bza-ztzvn-swx6g-dgkdp-24g7z-54mt2-2edmj-7j4n7-x7qnj-oqe";
 
   let connected_clients = Buffer.Buffer<IcWebSocketCdk.ClientPrincipal>(0);
 
