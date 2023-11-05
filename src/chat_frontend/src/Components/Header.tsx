@@ -1,8 +1,20 @@
 import React from "react";
+import { useAuth } from "./Context";
 
 const Header = ({ isConnected }) => {
+  const { logout } = useAuth();
+
+  const handleLogout = async () => {
+    logout();
+    window.location.reload();
+  };
   return (
     <div>
+      <button
+        onClick={handleLogout}
+       className="absolute top-0 right-0 m-5 p-2 bg-blue-500 text-white rounded-md">
+        Logout
+      </button>
       <h1 className="py-5 text-center text-5xl font-bold">
         Websocket - Motoko
       </h1>
