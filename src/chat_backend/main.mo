@@ -121,12 +121,7 @@ actor {
     null,
     null,
   );
-  var ws = IcWebSocketCdk.IcWebSocket(ws_state, params);
-
-  system func postupgrade() {
-    ws_state := IcWebSocketCdk.IcWebSocketState(gateway_principal);
-    ws := IcWebSocketCdk.IcWebSocket(ws_state, params);
-  };
+  let ws = IcWebSocketCdk.IcWebSocket(ws_state, params);
 
   // method called by the WS Gateway after receiving FirstMessage from the client
   public shared ({ caller }) func ws_open(args : IcWebSocketCdk.CanisterWsOpenArguments) : async IcWebSocketCdk.CanisterWsOpenResult {
