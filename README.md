@@ -44,6 +44,7 @@ npm install
 dfx start --clean --background
 
 # Deploys your canisters to the replica and generates your candid interface
+dfx deps deploy
 dfx deploy
 ```
 

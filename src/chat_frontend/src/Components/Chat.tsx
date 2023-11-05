@@ -1,9 +1,12 @@
-import React, { MutableRefObject, useEffect, useRef, useState } from "react";
+import { MutableRefObject, useEffect, useRef, useState } from "react";
 import { AppMessage, GroupChatMessage } from "../utils/types";
 import { useAuth } from "./Context";
+import { InfinitySpin } from "react-loader-spinner";
 
 const Chat = () => {
-const {ws} = useAuth();
+  const { ws } = useAuth();
+  const [wsIsConnecting, setWsIsConnecting] = useState(true);
+  const [wsIsConnected, setWsIsConnected] = useState(false);
 
   const [messages, setMessages] = useState<GroupChatMessage[]>([]);
   const [userVal, setUserVal] = useState("");
@@ -13,7 +16,7 @@ const {ws} = useAuth();
   const [typingUser, setTypingUser] = useState("");
   const [timer, setTimer] = useState(null);
 
-  const handleUsernameChange = (event) => {
+  const handleUsernameChange = () => {
     setUserName(userVal);
     const handleScrollToBottom = () => {
       window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
@@ -72,6 +75,25 @@ const {ws} = useAuth();
   };
 
   useEffect(() => {
+    if (!ws) {
+      return;
+    }
+
+    ws.onopen = () => {
+      console.log("Connected to the canister");
+      setWsIsConnected(true);
+      setWsIsConnecting(false);
+    };
+
+    ws.onclose = () => {
+      console.log("Disconnected from the canister");
+      setWsIsConnected(false);
+    };
+
+    ws.onerror = (error) => {
+      console.log("Error:", error);
+    };
+
     ws.onmessage = async (event) => {
       try {
         const recievedMessage = event.data;
@@ -99,7 +121,7 @@ const {ws} = useAuth();
         console.log("Error deserializing message", error);
       }
     };
-  }, [ws.onmessage, userName]);
+  }, [ws, userName]);
 
   const handleIsTypingMessage = (message: GroupChatMessage) => {
     if (message.name !== userName) {
@@ -122,6 +144,29 @@ const {ws} = useAuth();
   }
 
   const ref = useChatScroll(messages);
+
+  if (wsIsConnecting) {
+    return (
+      <div className="flex justify-center min-h-screen">
+        {wsIsConnecting && (
+          <h3 className="text-center flex items-center text-2xl font-semibold">
+            Websocket connecting...{" "}
+            {<InfinitySpin width="150" color="#2196F3" />}
+          </h3>
+        )}
+      </div>
+    );
+  }
+
+  if (!wsIsConnected) {
+    return (
+      <div className="flex justify-center min-h-screen">
+        <h3 className="text-center flex items-center text-2xl font-semibold">
+          Websocket not connected
+        </h3>
+      </div>
+    )
+  }
 
   return (
     <div className="flex justify-center min-h-screen">
@@ -166,18 +211,15 @@ const {ws} = useAuth();
                 {messages.map((msg, index) => (
                   <div key={index} className="chat-message">
                     <div
-                      className={`${
-                        userName === msg.name ? `justify-end` : ``
-                      } flex items-end  ${
-                        msg.message === "_joined_the_chat_"
+                      className={`${userName === msg.name ? `justify-end` : ``
+                        } flex items-end  ${msg.message === "_joined_the_chat_"
                           ? "justify-center"
                           : ""
-                      } `}
+                        } `}
                     >
                       <div
-                        className={`${
-                          userName === msg.name ? `items-end` : `items-start`
-                        } flex flex-col space-y-2 max-w-xs mx-2 order-2 `}
+                        className={`${userName === msg.name ? `items-end` : `items-start`
+                          } flex flex-col space-y-2 max-w-xs mx-2 order-2 `}
                       >
                         {msg.message === "_joined_the_chat_" ? (
                           <h1>
@@ -187,20 +229,18 @@ const {ws} = useAuth();
                         ) : (
                           <div className="">
                             <h1
-                              className={`${
-                                msg.name === userName
+                              className={`${msg.name === userName
                                   ? `text-end`
                                   : `text-start`
-                              }`}
+                                }`}
                             >
                               {msg.name === userName ? "You" : `${msg.name}`}
                             </h1>
                             <span
-                              className={`${
-                                userName === msg.name
+                              className={`${userName === msg.name
                                   ? `bg-blue-600 text-white`
                                   : ` bg-gray-300 text-gray-600`
-                              } backdrop:px-4 px-2 py-2 rounded-lg inline-block rounded-bl-none`}
+                                } backdrop:px-4 px-2 py-2 rounded-lg inline-block rounded-bl-none`}
                             >
                               {msg.message}
                             </span>
