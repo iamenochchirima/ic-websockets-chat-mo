@@ -76,14 +76,9 @@ const Context: FC<LayoutProps> = ({ children }) => {
     }
   };
 
-  const handleLogout = async () => {
+  const logout = async () => {
     await authClient.logout();
     setIsAuthenticated(false);
-    setIdentity(null);
-  };
-
-  const logout = async () => {
-    await handleLogout();
     setIdentity(null);
   };
 
