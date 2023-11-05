@@ -91,7 +91,7 @@ const Context: FC<LayoutProps> = ({ children }) => {
     host: host,
     identity: identity,
   });
-  agent.fetchRootKey();
+  // agent.fetchRootKey();
 
   const backendActor = Actor.createActor(idlFactory, {
     agent,
