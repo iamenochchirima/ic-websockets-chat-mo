@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
 import Chat from "./Components/Chat";
-import { ws } from "./utils/ws";
 import Header from "./Components/Header";
 import { InfinitySpin } from "react-loader-spinner";
 import { useAuth } from "./Components/Context";
 
 const App = () => {
-  const { isAuthenticated, login, checkAuth } = useAuth();
+  const { isAuthenticated, login, checkAuth, identity, ws } = useAuth();
   const [connecting, setConnecting] = useState(true);
   const [isClosed, setIsClosed] = useState(false);
   const [isConnected, setIsConnected] = useState(false);

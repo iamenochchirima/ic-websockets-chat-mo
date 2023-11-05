@@ -1,7 +1,12 @@
 import { Actor, HttpAgent, Identity } from "@dfinity/agent";
 import React, { FC, createContext, useContext, useState } from "react";
 import { AuthClient } from "@dfinity/auth-client";
-import { canisterId, idlFactory } from "../../../declarations/chat_backend";
+import {
+  canisterId,
+  chat_backend,
+  idlFactory,
+} from "../../../declarations/chat_backend";
+import IcWebSocket, { generateRandomIdentity } from "ic-websocket-js";
 
 const authClient = await AuthClient.create();
 
@@ -14,9 +19,10 @@ interface LayoutProps {
 }
 
 type Context = {
-  identity: Identity | null
+  identity: null;
   backendActor: any;
   isAuthenticated: boolean;
+  ws: any;
   login: () => void;
   logout: () => void;
   checkAuth: () => void;
@@ -26,6 +32,7 @@ const initialContext: Context = {
   identity: null,
   backendActor: null,
   isAuthenticated: false,
+  ws: null,
   login: (): void => {
     throw new Error("login function must be overridden");
   },
@@ -65,7 +72,7 @@ const Context: FC<LayoutProps> = ({ children }) => {
         setIdentity(identity);
       }
     } catch (error) {
-      console.log("Error in checkAuth", error)
+      console.log("Error in checkAuth", error);
     }
   };
 
@@ -90,15 +97,34 @@ const Context: FC<LayoutProps> = ({ children }) => {
     agent,
     canisterId: canisterId,
   });
+
+  ////////////////////// Websockets////////////////////////////////
+
+  // Production
+  // const gatewayUrl = "wss://gateway.icws.io";
+  // const icUrl = "https://icp0.io";
+
+  // Local test
+  const gatewayUrl = "ws://127.0.0.1:8080";
+  const icUrl = "http://127.0.0.1:4943";
+
+  const ws = new IcWebSocket(gatewayUrl, undefined, {
+    canisterId: canisterId,
+    canisterActor: chat_backend,
+    identity: identity ? identity : generateRandomIdentity(),
+    networkUrl: icUrl,
+  });
+
   return (
     <ContextWrapper.Provider
       value={{
         identity,
         backendActor,
         isAuthenticated,
+        ws,
         login,
         logout,
-        checkAuth
+        checkAuth,
       }}
     >
       {children}

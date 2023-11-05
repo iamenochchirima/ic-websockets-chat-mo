@@ -1,8 +1,10 @@
 import React, { MutableRefObject, useEffect, useRef, useState } from "react";
-import { ws } from "../utils/ws";
 import { AppMessage, GroupChatMessage } from "../utils/types";
+import { useAuth } from "./Context";
 
 const Chat = () => {
+const {ws} = useAuth();
+
   const [messages, setMessages] = useState<GroupChatMessage[]>([]);
   const [userVal, setUserVal] = useState("");
   const [userName, setUserName] = useState("");
