@@ -1,18 +1,18 @@
-import React from "react";
 import { useAuth } from "./Context";
 
-const Header = ({ isConnected }) => {
-  const { logout } = useAuth();
+const Header = () => {
+  const { logout, ws } = useAuth();
 
   const handleLogout = async () => {
     logout();
     window.location.reload();
   };
+
   return (
     <div>
       <button
         onClick={handleLogout}
-       className="absolute top-0 right-0 m-5 p-2 bg-blue-500 text-white rounded-md">
+        className="absolute top-0 right-0 m-5 p-2 bg-blue-500 text-white rounded-md">
         Logout
       </button>
       <h1 className="py-5 text-center text-5xl font-bold">
@@ -27,7 +27,7 @@ const Header = ({ isConnected }) => {
         </a>
       </div>
       <div className="w-full h-full flex gap-5 items-center justify-center my-5">
-        {isConnected && (
+        {ws && (ws.readyState === ws.OPEN) && (
           <h3 className="text-lg font-semibold">Websocket open</h3>
         )}
       </div>
