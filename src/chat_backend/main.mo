@@ -13,7 +13,7 @@ actor {
 
   // Paste here the principal of the gateway obtained when running the gateway
   // Local gateway
-  let gateway_principal : Text = "jkhgq-q7bza-ztzvn-swx6g-dgkdp-24g7z-54mt2-2edmj-7j4n7-x7qnj-oqe";
+  let gateway_principal : Text = "4vckx-bhbmz-uu3yz-ll4ug-alzch-fifj3-r4ufc-g4nfn-7fz5s-xwo2m-pqe";
 
   let connected_clients = Buffer.Buffer<IcWebSocketCdk.ClientPrincipal>(0);
 
@@ -139,8 +139,8 @@ actor {
   };
 
   // method called by the frontend SDK to send a message to the canister
-  public shared ({ caller }) func ws_message(args : IcWebSocketCdk.CanisterWsMessageArguments) : async IcWebSocketCdk.CanisterWsMessageResult {
-    await ws.ws_message(caller, args);
+  public shared ({ caller }) func ws_message(args : IcWebSocketCdk.CanisterWsMessageArguments, msg_type: ?AppMessage) : async IcWebSocketCdk.CanisterWsMessageResult {
+    await ws.ws_message(caller, args, msg_type);
   };
 
   // method called by the WS Gateway to get messages for all the clients it serves

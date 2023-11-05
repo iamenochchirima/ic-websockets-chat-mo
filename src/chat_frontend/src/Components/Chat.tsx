@@ -1,6 +1,5 @@
 import React, { MutableRefObject, useEffect, useRef, useState } from "react";
 import { ws } from "../utils/ws";
-import { deserializeAppMessage, serializeAppMessage } from "../utils/idl";
 import { AppMessage, GroupChatMessage } from "../utils/types";
 
 const Chat = () => {
@@ -30,7 +29,7 @@ const Chat = () => {
     const msg: AppMessage = {
       JoinedChat: userName,
     };
-    ws.send(serializeAppMessage(msg));
+    ws.send(msg);
   };
 
   const handleMessageChange = async (event) => {
@@ -51,7 +50,7 @@ const Chat = () => {
           setTimer(null);
         }, 3000)
       );
-      ws.send(serializeAppMessage(appMessage));
+      ws.send(appMessage);
     }
   };
 
@@ -67,13 +66,13 @@ const Chat = () => {
 
     setMessages((prev) => [...prev, chat]);
     setMessage("");
-    ws.send(serializeAppMessage(appMessage));
+    ws.send(appMessage);
   };
 
   useEffect(() => {
     ws.onmessage = async (event) => {
       try {
-        const recievedMessage = deserializeAppMessage(event.data);
+        const recievedMessage = event.data;
 
         // If the message is a GroupMessage, check if it is a typing message
         if ("GroupMessage" in recievedMessage) {
