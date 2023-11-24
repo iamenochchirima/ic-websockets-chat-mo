@@ -9,11 +9,11 @@ import Principal "mo:base/Principal";
 
 actor {
   // Production gateway
-  // let gateway_principal : Text = "3656s-3kqlj-dkm5d-oputg-ymybu-4gnuq-7aojd-w2fzw-5lfp2-4zhx3-4ae";
+  let gateway_principal : Text = "3656s-3kqlj-dkm5d-oputg-ymybu-4gnuq-7aojd-w2fzw-5lfp2-4zhx3-4ae";
 
   // Paste here the principal of the gateway obtained when running the gateway
   // Local gateway
-  let gateway_principal : Text = "4vckx-bhbmz-uu3yz-ll4ug-alzch-fifj3-r4ufc-g4nfn-7fz5s-xwo2m-pqe";
+  // let gateway_principal : Text = "4vckx-bhbmz-uu3yz-ll4ug-alzch-fifj3-r4ufc-g4nfn-7fz5s-xwo2m-pqe";
 
   let connected_clients = Buffer.Buffer<IcWebSocketCdk.ClientPrincipal>(0);
 
@@ -28,7 +28,7 @@ actor {
     #JoinedChat : Text;
   };
 
-  var ws_state = IcWebSocketCdk.IcWebSocketState(gateway_principal);
+  var ws_state = IcWebSocketCdk.IcWebSocketState([gateway_principal]);
 
   /// A custom function to send the message to the client
   public func send_app_message(client_principal : IcWebSocketCdk.ClientPrincipal, msg : AppMessage) : async () {

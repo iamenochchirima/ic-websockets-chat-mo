@@ -58,7 +58,7 @@ const Context: FC<LayoutProps> = ({ children }) => {
     await authClient.login({
       identityProvider: process.env.DFX_NETWORK === "ic"
         ? "https://identity.ic0.app"
-        : `http://127.0.0.1:4943/?canisterId=rdmx6-jaaaa-aaaaa-aaadq-cai`,
+        : `http://127.0.0.1:4943/?canisterId=be2us-64aaa-aaaaa-qaabq-cai`,
       onSuccess: () => {
         checkAuth();
       },
