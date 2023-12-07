@@ -6,15 +6,10 @@ import Buffer "mo:base/Buffer";
 import Blob "mo:base/Blob";
 import Bool "mo:base/Bool";
 import Principal "mo:base/Principal";
+import IcWebSocketCdkState "mo:ic-websocket-cdk/State";
+import IcWebSocketCdkTypes "mo:ic-websocket-cdk/Types";
 
 actor {
-  // Production gateway
-  let gateway_principal : Text = "3656s-3kqlj-dkm5d-oputg-ymybu-4gnuq-7aojd-w2fzw-5lfp2-4zhx3-4ae";
-
-  // Paste here the principal of the gateway obtained when running the gateway
-  // Local gateway
-  // let gateway_principal : Text = "4vckx-bhbmz-uu3yz-ll4ug-alzch-fifj3-r4ufc-g4nfn-7fz5s-xwo2m-pqe";
-
   let connected_clients = Buffer.Buffer<IcWebSocketCdk.ClientPrincipal>(0);
 
   type GroupChatMessage = {
@@ -27,8 +22,6 @@ actor {
     #GroupMessage : GroupChatMessage;
     #JoinedChat : Text;
   };
-
-  var ws_state = IcWebSocketCdk.IcWebSocketState([gateway_principal]);
 
   /// A custom function to send the message to the client
   public func send_app_message(client_principal : IcWebSocketCdk.ClientPrincipal, msg : AppMessage) : async () {
@@ -109,19 +102,16 @@ actor {
     return Buffer.toArray<IcWebSocketCdk.ClientPrincipal>(connected_clients);
   };
 
-  let handlers = IcWebSocketCdk.WsHandlers(
+  let params = IcWebSocketCdkTypes.WsInitParams(null, null, null);
+  let ws_state = IcWebSocketCdkState.IcWebSocketState(params);
+
+  let handlers = IcWebSocketCdkTypes.WsHandlers(
     ?on_open,
     ?on_message,
     ?on_close,
   );
 
-  let params = IcWebSocketCdk.WsInitParams(
-    handlers,
-    null,
-    null,
-    null,
-  );
-  let ws = IcWebSocketCdk.IcWebSocket(ws_state, params);
+  let ws = IcWebSocketCdk.IcWebSocket(ws_state, params, handlers);
 
   // method called by the WS Gateway after receiving FirstMessage from the client
   public shared ({ caller }) func ws_open(args : IcWebSocketCdk.CanisterWsOpenArguments) : async IcWebSocketCdk.CanisterWsOpenResult {
@@ -134,7 +124,7 @@ actor {
   };
 
   // method called by the frontend SDK to send a message to the canister
-  public shared ({ caller }) func ws_message(args : IcWebSocketCdk.CanisterWsMessageArguments, msg_type: ?AppMessage) : async IcWebSocketCdk.CanisterWsMessageResult {
+  public shared ({ caller }) func ws_message(args : IcWebSocketCdk.CanisterWsMessageArguments, msg_type : ?AppMessage) : async IcWebSocketCdk.CanisterWsMessageResult {
     await ws.ws_message(caller, args, msg_type);
   };
 
