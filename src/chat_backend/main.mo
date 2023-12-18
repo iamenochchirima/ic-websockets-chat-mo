@@ -1,4 +1,6 @@
 import IcWebSocketCdk "mo:ic-websocket-cdk";
+import IcWebSocketCdkState "mo:ic-websocket-cdk/State";
+import IcWebSocketCdkTypes "mo:ic-websocket-cdk/Types";
 import Text "mo:base/Text";
 import Debug "mo:base/Debug";
 import HashMap "mo:base/HashMap";
@@ -6,8 +8,6 @@ import Buffer "mo:base/Buffer";
 import Blob "mo:base/Blob";
 import Bool "mo:base/Bool";
 import Principal "mo:base/Principal";
-import IcWebSocketCdkState "mo:ic-websocket-cdk/State";
-import IcWebSocketCdkTypes "mo:ic-websocket-cdk/Types";
 
 actor {
   let connected_clients = Buffer.Buffer<IcWebSocketCdk.ClientPrincipal>(0);
@@ -29,8 +29,8 @@ actor {
       case (#JoinedChat(message)) {
         Debug.print("Sending message: " # debug_show (message));
 
-        // here we call the ws_send from the CDK!!
-        switch (await IcWebSocketCdk.ws_send(ws_state, client_principal, to_candid (msg))) {
+        // here we call the send from the CDK!!
+        switch (await IcWebSocketCdk.send(ws_state, client_principal, to_candid (msg))) {
           case (#Err(err)) {
             Debug.print("Could not send message:" # debug_show (#Err(err)));
           };
@@ -38,7 +38,7 @@ actor {
         };
       };
       case (#GroupMessage(message)) {
-        switch (await IcWebSocketCdk.ws_send(ws_state, client_principal, to_candid (msg))) {
+        switch (await IcWebSocketCdk.send(ws_state, client_principal, to_candid (msg))) {
           case (#Err(err)) {
             Debug.print("Could not send message:" # debug_show (#Err(err)));
           };
@@ -102,7 +102,7 @@ actor {
     return Buffer.toArray<IcWebSocketCdk.ClientPrincipal>(connected_clients);
   };
 
-  let params = IcWebSocketCdkTypes.WsInitParams(null, null, null);
+  let params = IcWebSocketCdkTypes.WsInitParams(null, null);
   let ws_state = IcWebSocketCdkState.IcWebSocketState(params);
 
   let handlers = IcWebSocketCdkTypes.WsHandlers(
