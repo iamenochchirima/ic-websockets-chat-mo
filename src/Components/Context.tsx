@@ -5,10 +5,11 @@ import {
   canisterId,
   chat_backend,
   createActor,
-} from "../../../declarations/chat_backend";
+} from "../declarations/chat_backend";
 import IcWebSocket from "ic-websocket-js";
 import { gatewayUrl, icUrl } from "../utils/ws";
-import type { AppMessage, _SERVICE } from "../../../declarations/chat_backend/chat_backend.did";
+import type { AppMessage, _SERVICE } from "../declarations/chat_backend/chat_backend.did";
+import { canisterId as iiCanId } from "../declarations/internet_identity";
 
 const authClient = await AuthClient.create();
 
@@ -58,7 +59,7 @@ const Context: FC<LayoutProps> = ({ children }) => {
     await authClient.login({
       identityProvider: process.env.DFX_NETWORK === "ic"
         ? "https://identity.ic0.app"
-        : `http://127.0.0.1:4943/?canisterId=be2us-64aaa-aaaaa-qaabq-cai`,
+        : `http://127.0.0.1:4943/?canisterId=${iiCanId}`,
       onSuccess: () => {
         checkAuth();
       },
