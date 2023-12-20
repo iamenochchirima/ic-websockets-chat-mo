@@ -7,10 +7,15 @@ import {
   createActor,
 } from "../../../declarations/chat_backend";
 import IcWebSocket from "ic-websocket-js";
-import { gatewayUrl, icUrl } from "../utils/ws";
-import type { AppMessage, _SERVICE } from "../../../declarations/chat_backend/chat_backend.did";
+import { gatewayUrl, icUrl, localgatewayUrl, localicUrl } from "../utils/ws";
+import type {
+  AppMessage,
+  _SERVICE,
+} from "../../../declarations/chat_backend/chat_backend.did";
+import { canisterId as iiCanId } from "../../../declarations/internet_identity";
 
 const authClient = await AuthClient.create();
+const env = process.env.DFX_NETWORK || "local";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -51,14 +56,16 @@ export const useAuth = () => {
 const Context: FC<LayoutProps> = ({ children }) => {
   const [identity, setIdentity] = useState<Identity | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [backendActor, setBackendActor] = useState<ActorSubclass<_SERVICE> | null>(null);
+  const [backendActor, setBackendActor] =
+    useState<ActorSubclass<_SERVICE> | null>(null);
   const [ws, setWs] = useState<IcWebSocket<_SERVICE, AppMessage> | null>(null);
 
   const login = async () => {
     await authClient.login({
-      identityProvider: process.env.DFX_NETWORK === "ic"
-        ? "https://identity.ic0.app"
-        : `http://127.0.0.1:4943/?canisterId=be2us-64aaa-aaaaa-qaabq-cai`,
+      identityProvider:
+        process.env.DFX_NETWORK === "ic"
+          ? "https://identity.ic0.app"
+          : `http://127.0.0.1:4943/?canisterId=${iiCanId}`,
       onSuccess: () => {
         checkAuth();
       },
@@ -74,16 +81,22 @@ const Context: FC<LayoutProps> = ({ children }) => {
         setIdentity(_identity);
 
         // set backend actor
-        const _backendActor = createActor(canisterId, { agentOptions: { identity: _identity } });
+        const _backendActor = createActor(canisterId, {
+          agentOptions: { identity: _identity },
+        });
         setBackendActor(_backendActor);
 
         // set websocket client
-        const _ws = new IcWebSocket(gatewayUrl, undefined, {
-          canisterId: canisterId,
-          canisterActor: chat_backend,
-          identity: _identity as SignIdentity,
-          networkUrl: icUrl,
-        });
+        const _ws = new IcWebSocket(
+          env === "local" ? localgatewayUrl : gatewayUrl,
+          undefined,
+          {
+            canisterId: canisterId,
+            canisterActor: chat_backend,
+            identity: _identity as SignIdentity,
+            networkUrl: env === "local" ? localicUrl : icUrl,
+          }
+        );
         setWs(_ws);
       }
     } catch (error) {
