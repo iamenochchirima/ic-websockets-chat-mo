@@ -4,22 +4,11 @@ import Header from "./Components/Header";
 import { useAuth } from "./Components/Context";
 
 const App = () => {
-  const { isAuthenticated, login, checkAuth, backendActor } = useAuth();
+  const { isAuthenticated, login, checkAuth } = useAuth();
 
   useEffect(() => {
     checkAuth();
   }, []);
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      callBackend();
-    }
-  }, [isAuthenticated]);
-
-  const callBackend = async () => {
-    const result = await backendActor.getAllConnectedClients();
-    console.log(result);
-  };
 
   return (
     <div className="bg-gray-900 text-gray-300 max-h-full">

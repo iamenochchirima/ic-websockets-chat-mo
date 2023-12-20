@@ -1,17 +1,30 @@
-import { ActorSubclass, Identity, SignIdentity } from "@dfinity/agent";
+import {
+  Actor,
+  ActorSubclass,
+  HttpAgent,
+  Identity,
+  SignIdentity,
+} from "@dfinity/agent";
 import React, { FC, createContext, useContext, useState } from "react";
 import { AuthClient } from "@dfinity/auth-client";
 import {
   canisterId,
-  chat_backend,
-  createActor,
+  chat_backend as backend,
+  idlFactory,
 } from "../declarations/chat_backend";
 import IcWebSocket from "ic-websocket-js";
 import { gatewayUrl, icUrl } from "../utils/ws";
-import type { AppMessage, _SERVICE } from "../declarations/chat_backend/chat_backend.did";
+import type {
+  AppMessage,
+  _SERVICE,
+} from "../declarations/chat_backend/chat_backend.did";
 import { canisterId as iiCanId } from "../declarations/internet_identity";
 
 const authClient = await AuthClient.create();
+
+const localhost = "http://localhost:3000";
+const host = "https://icp0.io";
+const network = process.env.DFX_NETWORK || "local";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -19,7 +32,7 @@ interface LayoutProps {
 
 type Context = {
   identity: Identity | null;
-  backendActor: ActorSubclass<_SERVICE> | null;
+  backendActor: ActorSubclass | null;
   isAuthenticated: boolean;
   ws: IcWebSocket<_SERVICE, AppMessage> | null;
   login: () => void;
@@ -52,14 +65,15 @@ export const useAuth = () => {
 const Context: FC<LayoutProps> = ({ children }) => {
   const [identity, setIdentity] = useState<Identity | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [backendActor, setBackendActor] = useState<ActorSubclass<_SERVICE> | null>(null);
+  const [backendActor, setBackendActor] = useState<ActorSubclass | null>(null);
   const [ws, setWs] = useState<IcWebSocket<_SERVICE, AppMessage> | null>(null);
 
   const login = async () => {
     await authClient.login({
-      identityProvider: process.env.DFX_NETWORK === "ic"
-        ? "https://identity.ic0.app"
-        : `http://127.0.0.1:4943/?canisterId=${iiCanId}`,
+      identityProvider:
+        process.env.DFX_NETWORK === "ic"
+          ? "https://identity.ic0.app"
+          : `http://127.0.0.1:4943/?canisterId=${iiCanId}`,
       onSuccess: () => {
         checkAuth();
       },
@@ -70,22 +84,29 @@ const Context: FC<LayoutProps> = ({ children }) => {
   const checkAuth = async () => {
     try {
       if (await authClient.isAuthenticated()) {
-        setIsAuthenticated(true);
         const _identity = authClient.getIdentity();
         setIdentity(_identity);
 
-        // set backend actor
-        const _backendActor = createActor(canisterId, { agentOptions: { identity: _identity } });
+        let agent = new HttpAgent({
+          host: network === "local" ? localhost : host,
+          identity: _identity,
+        });
+        agent.fetchRootKey();
+
+        const _backendActor = Actor.createActor(idlFactory, {
+          agent,
+          canisterId: canisterId,
+        });
         setBackendActor(_backendActor);
 
-        // set websocket client
         const _ws = new IcWebSocket(gatewayUrl, undefined, {
           canisterId: canisterId,
-          canisterActor: chat_backend,
+          canisterActor: backend,
           identity: _identity as SignIdentity,
           networkUrl: icUrl,
         });
         setWs(_ws);
+        setIsAuthenticated(true);
       }
     } catch (error) {
       console.log("Error in checkAuth", error);
