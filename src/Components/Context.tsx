@@ -13,7 +13,7 @@ import {
   idlFactory,
 } from "../declarations/chat_backend";
 import IcWebSocket from "ic-websocket-js";
-import { gatewayUrl, icUrl } from "../utils/ws";
+import { gatewayUrl, icUrl, localGatewayUrl, localICUrl } from "../utils/ws";
 import type {
   AppMessage,
   _SERVICE,
@@ -24,7 +24,7 @@ const authClient = await AuthClient.create();
 
 const localhost = "http://localhost:3000";
 const host = "https://icp0.io";
-const network = process.env.DFX_NETWORK || "local";
+const network = process.env.DFX_NETWORK || "local"
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -71,7 +71,7 @@ const Context: FC<LayoutProps> = ({ children }) => {
   const login = async () => {
     await authClient.login({
       identityProvider:
-        process.env.DFX_NETWORK === "ic"
+        network === "ic"
           ? "https://identity.ic0.app"
           : `http://127.0.0.1:4943/?canisterId=${iiCanId}`,
       onSuccess: () => {
@@ -99,11 +99,11 @@ const Context: FC<LayoutProps> = ({ children }) => {
         });
         setBackendActor(_backendActor);
 
-        const _ws = new IcWebSocket(gatewayUrl, undefined, {
+        const _ws = new IcWebSocket(network === "local" ? localGatewayUrl : gatewayUrl, undefined, {
           canisterId: canisterId,
           canisterActor: backend,
           identity: _identity as SignIdentity,
-          networkUrl: icUrl,
+          networkUrl: network === "local" ? localICUrl : icUrl,
         });
         setWs(_ws);
         setIsAuthenticated(true);

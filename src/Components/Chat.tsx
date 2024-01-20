@@ -2,6 +2,7 @@ import { MutableRefObject, useEffect, useRef, useState } from "react";
 import { AppMessage, GroupChatMessage } from "../utils/types";
 import { useAuth } from "./Context";
 import { InfinitySpin } from "react-loader-spinner";
+import {handleWebSocketMessage} from "../service";
 
 const Chat = () => {
   const { ws } = useAuth();
@@ -95,6 +96,7 @@ const Chat = () => {
     };
 
     ws.onmessage = async (event) => {
+      await handleWebSocketMessage(event)
       try {
         const recievedMessage = event.data;
 

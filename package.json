@@ -24,7 +24,7 @@
     "@dfinity/principal": "^0.20.2",
     "css-loader": "^6.8.1",
     "file-loader": "^6.2.0",
-    "ic-websocket-js": "^0.3.2",
+    "ic-websocket-js": "^0.3.3",
     "postcss-loader": "^7.3.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
