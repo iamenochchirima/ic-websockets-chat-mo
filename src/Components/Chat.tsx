@@ -2,7 +2,7 @@ import { MutableRefObject, useEffect, useRef, useState } from "react";
 import { AppMessage, GroupChatMessage } from "../utils/types";
 import { useAuth } from "./Context";
 import { InfinitySpin } from "react-loader-spinner";
-import {handleWebSocketMessage} from "../service";
+import { handleWebSocketMessage } from "../service";
 
 const Chat = () => {
   const { ws } = useAuth();
@@ -96,22 +96,20 @@ const Chat = () => {
     };
 
     ws.onmessage = async (event) => {
-      await handleWebSocketMessage(event)
       try {
         const recievedMessage = event.data;
-
-        // If the message is a GroupMessage, check if it is a typing message
         if ("GroupMessage" in recievedMessage) {
           if (recievedMessage.GroupMessage.isTyping) {
             handleIsTypingMessage(recievedMessage.GroupMessage);
           } else {
+            await handleWebSocketMessage(event);
             if (recievedMessage.GroupMessage.name !== userName) {
               setMessages((prev) => [...prev, recievedMessage.GroupMessage]);
             }
           }
         }
-        // If the message is a JoinedChat message, add it to the messages
         if ("JoinedChat" in recievedMessage) {
+          await handleWebSocketMessage(event);
           const chat: GroupChatMessage = {
             name: recievedMessage.JoinedChat,
             message: "_joined_the_chat_",
@@ -167,7 +165,7 @@ const Chat = () => {
           Websocket not connected
         </h3>
       </div>
-    )
+    );
   }
 
   return (
@@ -213,15 +211,18 @@ const Chat = () => {
                 {messages.map((msg, index) => (
                   <div key={index} className="chat-message">
                     <div
-                      className={`${userName === msg.name ? `justify-end` : ``
-                        } flex items-end  ${msg.message === "_joined_the_chat_"
+                      className={`${
+                        userName === msg.name ? `justify-end` : ``
+                      } flex items-end  ${
+                        msg.message === "_joined_the_chat_"
                           ? "justify-center"
                           : ""
-                        } `}
+                      } `}
                     >
                       <div
-                        className={`${userName === msg.name ? `items-end` : `items-start`
-                          } flex flex-col space-y-2 max-w-xs mx-2 order-2 `}
+                        className={`${
+                          userName === msg.name ? `items-end` : `items-start`
+                        } flex flex-col space-y-2 max-w-xs mx-2 order-2 `}
                       >
                         {msg.message === "_joined_the_chat_" ? (
                           <h1>
@@ -231,18 +232,20 @@ const Chat = () => {
                         ) : (
                           <div className="">
                             <h1
-                              className={`${msg.name === userName
+                              className={`${
+                                msg.name === userName
                                   ? `text-end`
                                   : `text-start`
-                                }`}
+                              }`}
                             >
                               {msg.name === userName ? "You" : `${msg.name}`}
                             </h1>
                             <span
-                              className={`${userName === msg.name
+                              className={`${
+                                userName === msg.name
                                   ? `bg-blue-600 text-white`
                                   : ` bg-gray-300 text-gray-600`
-                                } backdrop:px-4 px-2 py-2 rounded-lg inline-block rounded-bl-none`}
+                              } backdrop:px-4 px-2 py-2 rounded-lg inline-block rounded-bl-none`}
                             >
                               {msg.message}
                             </span>

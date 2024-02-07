@@ -13,21 +13,12 @@ import {
   idlFactory,
 } from "../declarations/chat_backend";
 import IcWebSocket from "ic-websocket-js";
-<<<<<<< HEAD:src/chat_frontend/src/Components/Context.tsx
-import { gatewayUrl, icUrl, localgatewayUrl, localicUrl } from "../utils/ws";
-import type {
-  AppMessage,
-  _SERVICE,
-} from "../../../declarations/chat_backend/chat_backend.did";
-import { canisterId as iiCanId } from "../../../declarations/internet_identity";
-=======
 import { gatewayUrl, icUrl, localGatewayUrl, localICUrl } from "../utils/ws";
 import type {
   AppMessage,
   _SERVICE,
 } from "../declarations/chat_backend/chat_backend.did";
 import { canisterId as iiCanId } from "../declarations/internet_identity";
->>>>>>> vite:src/Components/Context.tsx
 
 const authClient = await AuthClient.create();
 const env = process.env.DFX_NETWORK || "local";
@@ -75,22 +66,13 @@ export const useAuth = () => {
 const Context: FC<LayoutProps> = ({ children }) => {
   const [identity, setIdentity] = useState<Identity | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-<<<<<<< HEAD:src/chat_frontend/src/Components/Context.tsx
-  const [backendActor, setBackendActor] =
-    useState<ActorSubclass<_SERVICE> | null>(null);
-=======
   const [backendActor, setBackendActor] = useState<ActorSubclass | null>(null);
->>>>>>> vite:src/Components/Context.tsx
   const [ws, setWs] = useState<IcWebSocket<_SERVICE, AppMessage> | null>(null);
 
   const login = async () => {
     await authClient.login({
       identityProvider:
-<<<<<<< HEAD:src/chat_frontend/src/Components/Context.tsx
-        process.env.DFX_NETWORK === "ic"
-=======
         network === "ic"
->>>>>>> vite:src/Components/Context.tsx
           ? "https://identity.ic0.app"
           : `http://127.0.0.1:4943/?canisterId=${iiCanId}`,
       onSuccess: () => {
@@ -106,25 +88,6 @@ const Context: FC<LayoutProps> = ({ children }) => {
         const _identity = authClient.getIdentity();
         setIdentity(_identity);
 
-<<<<<<< HEAD:src/chat_frontend/src/Components/Context.tsx
-        // set backend actor
-        const _backendActor = createActor(canisterId, {
-          agentOptions: { identity: _identity },
-        });
-        setBackendActor(_backendActor);
-
-        // set websocket client
-        const _ws = new IcWebSocket(
-          env === "local" ? localgatewayUrl : gatewayUrl,
-          undefined,
-          {
-            canisterId: canisterId,
-            canisterActor: chat_backend,
-            identity: _identity as SignIdentity,
-            networkUrl: env === "local" ? localicUrl : icUrl,
-          }
-        );
-=======
         let agent = new HttpAgent({
           host: network === "local" ? localhost : host,
           identity: _identity,
@@ -143,7 +106,6 @@ const Context: FC<LayoutProps> = ({ children }) => {
           identity: _identity as SignIdentity,
           networkUrl: network === "local" ? localICUrl : icUrl,
         });
->>>>>>> vite:src/Components/Context.tsx
         setWs(_ws);
         setIsAuthenticated(true);
       }
