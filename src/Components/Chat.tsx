@@ -2,7 +2,6 @@ import { MutableRefObject, useEffect, useRef, useState } from "react";
 import { AppMessage, GroupChatMessage } from "../utils/types";
 import { useAuth } from "./Context";
 import { InfinitySpin } from "react-loader-spinner";
-import { handleWebSocketMessage } from "../service";
 
 const Chat = () => {
   const { ws } = useAuth();
@@ -102,14 +101,12 @@ const Chat = () => {
           if (recievedMessage.GroupMessage.isTyping) {
             handleIsTypingMessage(recievedMessage.GroupMessage);
           } else {
-            await handleWebSocketMessage(event);
             if (recievedMessage.GroupMessage.name !== userName) {
               setMessages((prev) => [...prev, recievedMessage.GroupMessage]);
             }
           }
         }
         if ("JoinedChat" in recievedMessage) {
-          await handleWebSocketMessage(event);
           const chat: GroupChatMessage = {
             name: recievedMessage.JoinedChat,
             message: "_joined_the_chat_",
