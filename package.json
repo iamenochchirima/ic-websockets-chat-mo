@@ -18,13 +18,13 @@
     "generate": "dfx generate chat_backend"
   },
   "dependencies": {
-    "@dfinity/agent": "^0.20.2",
-    "@dfinity/auth-client": "^0.20.2",
-    "@dfinity/candid": "^0.20.2",
-    "@dfinity/principal": "^0.20.2",
+    "@dfinity/agent": "^2.0.0",
+    "@dfinity/auth-client": "^2.0.0",
+    "@dfinity/candid": "^2.0.0",
+    "@dfinity/principal": "^2.0.0",
     "css-loader": "^6.8.1",
     "file-loader": "^6.2.0",
-    "ic-websocket-js": "^0.3.3",
+    "ic-websocket-js": "^0.4.0",
     "postcss-loader": "^7.3.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

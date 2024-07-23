@@ -21,7 +21,6 @@ import type {
 import { canisterId as iiCanId } from "../declarations/internet_identity";
 
 const authClient = await AuthClient.create();
-const env = process.env.DFX_NETWORK || "local";
 
 const localhost = "http://localhost:3000";
 const host = "https://icp0.io";
