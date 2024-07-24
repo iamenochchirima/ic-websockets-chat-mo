@@ -12,13 +12,14 @@
       "frontend": {}
     },
     "chat_backend": {
-      "main": "chat_backend/main.mo",
+      "main": "src/chat_backend/main.mo",
       "type": "motoko"
     },
     "chat_frontend": {
       "dependencies": ["chat_backend"],
+      "source": ["src/chat_frontend/dist"],
       "type": "assets",
-      "source": ["dist/"]
+      "workspace": "chat_frontend"
     }
   },
   "defaults": {

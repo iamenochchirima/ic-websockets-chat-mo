@@ -1,68 +1,25 @@
 {
-  "name": "chat_frontend",
-  "version": "0.2.0",
-  "description": "Internet Computer starter application",
-  "keywords": [
-    "Internet Computer",
-    "Motoko",
-    "JavaScript",
-    "Canister"
-  ],
-  "scripts": {
-    "start": "run-p frontend",
-    "frontend": "vite --port 3000",
-    "backend": "dfx deploy chat_backend",
-    "build": "tsc && vite build",
-    "deploy:local": "dfx deploy --network=local",
-    "deploy:ic": "dfx deploy --network=ic",
-    "generate": "dfx generate chat_backend"
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=7.0.0"
   },
+  "name": "chat",
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "prebuild": "npm run prebuild --workspaces --if-present",
+    "pretest": "npm run prebuild --workspaces --if-present",
+    "start": "npm start --workspaces --if-present",
+    "test": "npm test --workspaces --if-present"
+  },
+  "type": "module",
+  "workspaces": [
+    "src/chat_frontend"
+  ],
   "dependencies": {
-    "@dfinity/agent": "^2.0.0",
-    "@dfinity/auth-client": "^2.0.0",
-    "@dfinity/candid": "^2.0.0",
-    "@dfinity/principal": "^2.0.0",
-    "css-loader": "^6.8.1",
-    "file-loader": "^6.2.0",
     "ic-websocket-js": "^0.4.0",
-    "postcss-loader": "^7.3.3",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-icons": "^4.10.1",
-    "react-loader-spinner": "^5.4.5",
-    "react-router-dom": "^6.15.0",
-    "style-loader": "^3.3.3",
-    "ts-loader": "^9.4.4",
-    "tweetnacl": "^1.0.3"
+    "react-loader-spinner": "^6.1.6"
   },
   "devDependencies": {
-    "@types/node": "^20.10.0",
-    "@types/react": "^18.2.14",
-    "@types/react-dom": "^18.2.6",
-    "@vitejs/plugin-react": "^4.0.1",
-    "autoprefixer": "^10.4.16",
-    "bignumber.js": "^9.1.1",
-    "cross-fetch": "^3.1.6",
-    "dotenv": "^16.3.1",
-    "jsdom": "^22.1.0",
-    "npm-run-all": "^4.1.5",
-    "postcss": "^8.4.31",
-    "prettier": "^2.8.8",
-    "sass": "^1.63.6",
-    "tailwindcss": "^3.3.5",
-    "typescript": "^5.1.6",
-    "vite": "^4.3.9",
-    "vite-plugin-environment": "^1.1.3",
-    "vite-plugin-top-level-await": "^1.4.1",
-    "vitest": "^0.32.2"
-  },
-  "engines": {
-    "node": "^12 || ^14 || ^16 || ^18"
-  },
-  "browserslist": [
-    "last 2 chrome version",
-    "last 2 firefox version",
-    "last 2 safari version",
-    "last 2 edge version"
-  ]
+    "@types/node": "^20.14.11"
+  }
 }

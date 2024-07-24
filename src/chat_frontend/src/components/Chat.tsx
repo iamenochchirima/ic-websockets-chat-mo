@@ -1,6 +1,6 @@
 import { MutableRefObject, useEffect, useRef, useState } from "react";
 import { AppMessage, GroupChatMessage } from "../utils/types";
-import { useAuth } from "./Context";
+import { useAuth } from "../hooks/Context";
 import { InfinitySpin } from "react-loader-spinner";
 
 const Chat = () => {

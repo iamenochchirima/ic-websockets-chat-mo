@@ -1,4 +1,5 @@
-import { useAuth } from "./Context";
+import { useAuth } from "../hooks/Context";
+
 
 const Header = () => {
   const { logout, ws } = useAuth();
