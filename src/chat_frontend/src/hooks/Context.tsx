@@ -12,13 +12,14 @@ import {
   chat_backend as backend,
   idlFactory,
 } from "../../../declarations/chat_backend";
-import IcWebSocket from "ic-websocket-js";
+import IcWebSocket, { generateRandomIdentity } from "ic-websocket-js";
 import { gatewayUrl, icUrl, localGatewayUrl, localICUrl } from "../utils/ws";
 import type {
   AppMessage,
   _SERVICE,
 } from "../../../declarations/chat_backend/chat_backend.did";
 import { canisterId as iiCanId } from "../../../declarations/internet_identity";
+import { pingpong_backend } from "../../../declarations/pingpong_backend";
 
 const localhost = "http://localhost:3000";
 const host = "https://icp0.io";

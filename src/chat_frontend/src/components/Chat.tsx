@@ -4,7 +4,7 @@ import { useAuth } from "../hooks/Context";
 import { InfinitySpin } from "react-loader-spinner";
 
 const Chat = () => {
-  const { ws } = useAuth();
+  const { ws} = useAuth();
   const [wsIsConnecting, setWsIsConnecting] = useState(true);
   const [wsIsConnected, setWsIsConnected] = useState(false);
 
