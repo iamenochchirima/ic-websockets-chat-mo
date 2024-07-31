@@ -19,7 +19,6 @@ import type {
   _SERVICE,
 } from "../../../declarations/chat_backend/chat_backend.did";
 import { canisterId as iiCanId } from "../../../declarations/internet_identity";
-import { pingpong_backend } from "../../../declarations/pingpong_backend";
 
 const localhost = "http://localhost:3000";
 const host = "https://icp0.io";
