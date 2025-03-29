@@ -12,7 +12,7 @@ import {
   chat_backend as backend,
   idlFactory,
 } from "../../../declarations/chat_backend";
-import IcWebSocket, { generateRandomIdentity } from "ic-websocket-js";
+import { IcWebSocket } from "ic-websocket-js";
 import { gatewayUrl, icUrl, localGatewayUrl, localICUrl } from "../utils/ws";
 import type {
   AppMessage,
